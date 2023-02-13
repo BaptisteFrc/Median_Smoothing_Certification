@@ -1,4 +1,14 @@
+'''
+axes de dvp :
+ce n'est pas fait dans le papier mais on pourrait ajouter un coefficient multiplicatif à la gaussienne pour qu'elle soit plus adaptée à l'entrée
+modifier la gestion du bruit pour pouvoir l'utiliser aussi avec nos propres distributions (pour le moment on peut que le faire avec les fonctions de scipy.stats)
+interface des resultats (courbes, ect)
+travail sur les bornes
+implémenter la methode avec l'espérance
+'''
+
 import scipy.stats
+import pylab as pl
 
 
 def lissage(f, n, G, p):
@@ -23,7 +33,7 @@ def lissage(f, n, G, p):
 
 def bruit(G):
     '''
-    pour le moment ne fonctionne qu'avec les gaussiennes de scipy
+    pour le moment ne fonctionne qu'avec les fonctions de scipy
     '''
     return G.rvs()
 
@@ -40,6 +50,19 @@ def choix(p, experience):
         return experience[i-1]
 
 
-lissee = lissage(lambda x: x[0]+x[1], 100,
-                 scipy.stats.multivariate_normal(0, 1), 0.5)
-print(lissee((10, 10)))
+# lissee = lissage(lambda x: x[0], 100,
+#                  scipy.stats.multivariate_normal(0, 1), 0.1)
+# print(lissee([10]*10))
+
+def courbe_diff(f, n, G, p):
+    l_x = pl.linspace(-10, 10, 1000)
+    l_f = [f(x) for x in l_x]
+    f_lissee = lissage(f, n, G, p)
+    l_lissee = [f_lissee(x) for x in l_x]
+    pl.plot(l_x, l_f)
+    pl.plot(l_x, l_lissee)
+    pl.show()
+
+
+# le résultat est sympa si vous avez le temps de faire tourner.
+courbe_diff(pl.sin, 1000, scipy.stats.multivariate_normal(0, 1), 0.5)
