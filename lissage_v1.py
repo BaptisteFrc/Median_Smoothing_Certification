@@ -34,7 +34,7 @@ def lissage_esp(f, n, G):
     Necessite de choisir :
     Le nombre d'itération du tirage aléatoire du bruit n,
     La variable aléatoire du bruit (ex: gaussienne centrée réduite) G,
-    La méthode de choix du tirage retenu (ex médiane). Si on se limite à des quantils alors p
+    La méthode de choix du tirage retenu : ici l'espérance.
     '''
     def f_lissee(x):
         '''
