@@ -111,7 +111,7 @@ def borne_en_x_esp(f, sigma, x, u, l, delta):
     '''
     pour avoir les bornes du papier, il faut normaliser f et donc que celle-ci soit bornée.
     la formule ne fonctionne qu'avec une gaussienne donc pas besoin de G mais seulement de sigma.
-    necessite de connaitre la borne sur les attaques delta.
+    necessite de connaitre la borne sur les attaques delta (pour l'instant j'ai mis 1 au hasard)
     '''
     return l+(u-l)*phi(sigma)((eta(sigma, f, u, l)(x)-delta)/sigma), l+(u-l)*phi(sigma)((eta(sigma, f, u, l)(x)+delta)/sigma)
 
@@ -147,3 +147,30 @@ def eta(sigma, f, u, l):
 
 
 # print(borne_en_x_esp(pl.sin, 1, 1, 1, -1, 1))
+
+def courbe_et_borne_esp(f, n, sigma, u, l, delta):
+    G = scipy.stats.norm(0, sigma)
+    l_x = pl.linspace(-10, 10, 1000)
+    l_f = [f(x) for x in l_x]
+    f_esp = lissage_esp(f, n, G)
+    l_esp = [f_esp(x) for x in l_x]
+    l_inf = []
+    l_sup = []
+    for x in l_x:
+        a, b = borne_en_x_esp(f, sigma, x, u, l, delta)
+        l_inf.append(a)
+        l_sup.append(b)
+    pl.plot(l_x, l_f, label='f')
+    pl.plot(l_x, l_esp, label='f_esp')
+    pl.plot(l_x, l_inf, label='f_inf')
+    pl.plot(l_x, l_sup, label='f_sup')
+    pl.legend()
+    pl.show()
+
+
+courbe_et_borne_esp(pl.sin, 100, 1, 1, -1, 1)
+'''
+résultat bizarre ici f_esp n'est pas toujours compris entre les deux bornes.
+peut être que c'est bien g dans la formule d'eta et pas f...
+mais alors ca veut dire que les bornes ne peuvent pas être calculées exactement puisque g est une approximation de l'esperance.
+'''
