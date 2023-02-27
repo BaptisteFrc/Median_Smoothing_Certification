@@ -201,4 +201,4 @@ def courbe_et_borne_esp(f, n, sigma, u, l, delta, alpha):
     pl.show()
 
 
-# courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
+courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
