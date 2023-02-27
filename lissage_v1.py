@@ -10,6 +10,13 @@ remarques :
 import scipy.stats
 import pylab as pl
 
+'''
+from inspect import signature
+def quelle_dimension(f) :
+    sig=signature(f)
+    return sig.parameters['x'].annotation
+'''
+
 
 def lissage(f, n, G, p):
     '''
@@ -19,9 +26,7 @@ def lissage(f, n, G, p):
     La variable aléatoire du bruit (ex: gaussienne centrée réduite) G,
     La méthode de choix du tirage retenu (ex médiane). Si on se limite à des quantils alors p.
     '''
-    tirages = []
-    for _ in range(n):
-        tirages.append(bruit(G))
+    tirage_a_faire = True
     '''
     Tous les calculs seront faits à partir de ce même échantillon.
     Cela permet notamment d'obtenir le même résultat quand on recalcule f_lissee à un même point.
@@ -31,6 +36,15 @@ def lissage(f, n, G, p):
         '''
         x est un element de Rd
         '''
+        global tirage_a_faire
+        global tirages
+
+        if tirage_a_faire:
+            tirages = []
+            for _ in range(n):
+                tirages.append(bruit(G))
+            tirage_a_faire = False
+
         experience = []
         for tirage in tirages:
             x_bruite = x+tirage
@@ -201,4 +215,4 @@ def courbe_et_borne_esp(f, n, sigma, u, l, delta, alpha):
     pl.show()
 
 
-# courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
+courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
