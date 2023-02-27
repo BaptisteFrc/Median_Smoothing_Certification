@@ -1,12 +1,12 @@
 import torch
 from torch import nn
-import torch.nn.functional as F
-from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 from torchvision.transforms import ToTensor
+import torch.nn.functional as F
 from torch import optim
 from torch.autograd import Variable
-import cv2
+from PIL import Image
+import matplotlib.pyplot as plt
 
 
 class NeuralNetwork(nn.Module):
@@ -28,7 +28,6 @@ class NeuralNetwork(nn.Module):
             nn.ReLU(),
             nn.MaxPool2d(2),
         )
-        # fully connected layer, output 10 classes
         self.out = nn.Linear(32 * 7 * 7, 10)
 
     def forward(self, x):
@@ -36,8 +35,8 @@ class NeuralNetwork(nn.Module):
         x = self.conv2(x)
         # flatten the output of conv2 to (batch_size, 32 * 7 * 7)
         x = x.view(x.size(0), -1)
-        output = self.out(x)
-        return output, x
+        x = self.out(x)
+        return F.softmax(x, dim=1)
 
 
 train_data = datasets.MNIST(
@@ -54,20 +53,20 @@ test_data = datasets.MNIST(
 
 loaders = {
     'train': torch.utils.data.DataLoader(train_data,
-                                         batch_size=100,
+                                         batch_size=128,
                                          shuffle=True,
                                          num_workers=1),
 
     'test': torch.utils.data.DataLoader(test_data,
-                                        batch_size=100,
+                                        batch_size=128,
                                         shuffle=True,
                                         num_workers=1),
 }
 
 
-def train(num_epochs, cnn, loaders):
+def train(num_epochs, model, loaders):
 
-    cnn.train()
+    model.train()
 
     # Train the model
     total_step = len(loaders['train'])
@@ -79,8 +78,8 @@ def train(num_epochs, cnn, loaders):
             b_x = Variable(images)   # batch x
             b_y = Variable(labels)   # batch y
 
-            output = model(b_x)[0]
-            loss = loss_func(output, b_y)
+            output = model(b_x)
+            loss = F.nll_loss(output, b_y)
 
             # clear gradients for this training step
             optimizer.zero_grad()
@@ -96,48 +95,45 @@ def train(num_epochs, cnn, loaders):
             pass
         pass
     pass
+    torch.save(model.state_dict(), "mnist.pt")
 
 
 def test():
     # Test the model
     model.eval()
     with torch.no_grad():
-        correct = 0
-        total = 0
         for images, labels in loaders['test']:
-            test_output, last_layer = model(images)
+            test_output = model(images)
             pred_y = torch.max(test_output, 1)[1].data.squeeze()
             accuracy = (pred_y == labels).sum().item() / float(labels.size(0))
             pass
-        print('Test Accuracy of the model on the 10000 test images: %.2f' % accuracy)
+        print('Test Accuracy of the model on the 10000 test images: %.10f' % accuracy)
 
     pass
 
 
 def pre_image(img_path, model):
-    img = cv2.imread(img_path)
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    mean = [0.485]
-    std = [0.229]
+    img = Image.open(img_path)
+    img = transforms.Grayscale()(img)
     transform_norm = transforms.Compose([transforms.ToTensor(),
-                                         transforms.Resize((28, 28)), transforms.Normalize(mean, std)])
+                                         transforms.Resize((28, 28))])
     # get normalized image
     img_normalized = transform_norm(img).float()
     img_normalized = img_normalized.unsqueeze_(0)
     # input = Variable(image_tensor)
-    # print(img_normalized.shape)
+    plt.imshow(img_normalized[0].permute(1, 2, 0), cmap="gray")
     with torch.no_grad():
         model.eval()
-        output, l = model(img_normalized)
-        pred_y = torch.max(output, 1)[1].data.squeeze()
+        output = model(img_normalized)
+        pred_y = torch.max(output, 1)
         return pred_y
 
 
 if __name__ == '__main__':
     model = NeuralNetwork()
-    num_epochs = 2
-    loss_func = nn.CrossEntropyLoss()
+    num_epochs = 3
     optimizer = optim.Adam(model.parameters(), lr=0.01)
-    train(num_epochs, model, loaders)
-    test()
-    print(pre_image("data/3 test.png", model))
+    #train(num_epochs, model, loaders)
+    # test()
+    model.load_state_dict(torch.load("mnist.pt"))
+    print(pre_image("data/7n.png", model))
