@@ -135,5 +135,5 @@ if __name__ == '__main__':
     optimizer = optim.Adam(model.parameters(), lr=0.01)
     #train(num_epochs, model, loaders)
     # test()
-    model.load_state_dict(torch.load("mnist.pt"))
+    model.load_state_dict(torch.load("saved_model/mnist.pt"))
     print(pre_image("data/7n.png", model))
