@@ -1,10 +1,12 @@
 '''
 axes de dvp :
-- travail sur les bornes dans le cas quantile
+- travail sur les bornes dans le cas quantile (voir travail de Sarah)
 - comment on choisit sigma (de la gaussienne) ? Si on manipule des pixels ou des températures en entrée, les echelles de variations sont différentes donc ça mérite pas le même sigma.
 
-remarques :
-- quand on travail en dimension 2 ou plus, il faut bien préciser l'ensemble de départ aux gaussiennes multivariables de scipy
+à faire :
+- dissocier les fonctions lissages des fonctions lissage_et_bornes (lissage prend n'importe quel G, avec bornes c'est forcement gaussien)
+
+remarques : epsilon=0 donne l'incertitude sur la valeur de f_lissee.
 '''
 
 import scipy.stats
@@ -18,6 +20,13 @@ def quelle_dimension(f) :
 '''
 
 
+def bonne_gaussienne(sigma, moy=0):
+    def inner(x):
+        d = len(x)
+        return scipy.stats.multivariate_normal(moy*pl.ones(d), sigma*pl.identity(d)).rvs()
+    return inner
+
+
 def lissage(f, n, G, p):
     '''
     Prend une fonction f de Rd dans R et retourne sa fonction lissée.
@@ -26,9 +35,13 @@ def lissage(f, n, G, p):
     La variable aléatoire du bruit (ex: gaussienne centrée réduite) G,
     La méthode de choix du tirage retenu (ex médiane). Si on se limite à des quantils alors p.
     '''
+
     tirage_a_faire = True
+    h = {}
+    tirages = None
+
     '''
-    Tous les calculs seront faits à partir de ce même échantillon.
+    Tous les calculs seront faits à partir du même échantillon.
     Cela permet notamment d'obtenir le même résultat quand on recalcule f_lissee à un même point.
     '''
 
@@ -36,20 +49,25 @@ def lissage(f, n, G, p):
         '''
         x est un element de Rd
         '''
-        global tirage_a_faire
-        global tirages
+
+        nonlocal tirage_a_faire
+        nonlocal h
+        nonlocal tirages
 
         if tirage_a_faire:
             tirages = []
             for _ in range(n):
-                tirages.append(bruit(G))
+                tirages.append(G(x))
             tirage_a_faire = False
 
-        experience = []
-        for tirage in tirages:
-            x_bruite = x+tirage
-            experience.append(f(x_bruite))
-        return choix(p, experience)
+        if tuple(x) not in h:
+            experience = []
+            for tirage in tirages:
+                x_bruite = x+tirage
+                experience.append(float(f(x_bruite)))
+            h[tuple(x)] = choix(p, experience)
+
+        return h[tuple(x)]
 
     return f_lissee
 
@@ -63,25 +81,36 @@ def lissage_esp(f, n, G):
     La méthode de choix du tirage retenu : ici l'espérance.
     '''
 
-    tirages = []
-    for _ in range(n):
-        tirages.append(bruit(G))
+    tirage_a_faire = True
+    g = {}
+    tirages = None
 
     def f_lissee(x):
-        experience = []
-        for tirage in tirages:
-            x_bruite = x+tirage
-            experience.append(f(x_bruite))
-        return choix_esp(experience)
+        '''
+        x est un element de Rd
+        '''
+
+        nonlocal tirage_a_faire
+        nonlocal g
+        nonlocal tirages
+
+        if tirage_a_faire:
+            tirages = []
+            for _ in range(n):
+
+                tirages.append(G(x))
+            tirage_a_faire = False
+
+        if tuple(x) not in g:
+            experience = []
+            for tirage in tirages:
+                x_bruite = x+tirage
+                experience.append(float(f(x_bruite)))
+            g[tuple(x)] = choix_esp(experience)
+
+        return g[tuple(x)]
 
     return f_lissee
-
-
-def bruit(G):
-    '''
-    Pour le moment ne fonctionne qu'avec les fonctions de scipy.
-    '''
-    return G.rvs()
 
 
 def choix(p, experience):
@@ -115,8 +144,8 @@ def courbe_diff(f, n, G, p):
     f_esp = lissage_esp(f, n, G)
 
     l_f = [f(x) for x in l_x]
-    l_lissee = [f_lissee(x) for x in l_x]
-    l_esp = [f_esp(x) for x in l_x]
+    l_lissee = [f_lissee([x]) for x in l_x]
+    l_esp = [f_esp([x]) for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_lissee, label='f_p')
@@ -127,7 +156,7 @@ def courbe_diff(f, n, G, p):
     pl.show()
 
 
-# courbe_diff(pl.sin, 1000, scipy.stats.multivariate_normal(0, 1), 0.5)
+# courbe_diff(pl.sin, 1000, bonne_gaussienne(2), 0.5)
 
 
 def borne_en_x(f, n, G, p, x):
@@ -215,4 +244,4 @@ def courbe_et_borne_esp(f, n, sigma, u, l, delta, alpha):
     pl.show()
 
 
-courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
+# courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
