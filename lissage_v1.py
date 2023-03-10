@@ -156,7 +156,7 @@ def courbe_diff(f, n, G, p):
     pl.show()
 
 
-# courbe_diff(pl.sin, 1000, bonne_gaussienne(2), 0.5)
+courbe_diff(pl.sin, 1000, bonne_gaussienne(2), 0.5)
 
 
 def borne_en_x(f, n, G, p, x):
@@ -215,13 +215,13 @@ def eta(f_esp, sigma, u, l, phi_moins_1_sigma):
 
 def courbe_et_borne_esp(f, n, sigma, u, l, delta, alpha):
 
-    G = scipy.stats.norm(0, sigma)
+    G = bonne_gaussienne(sigma)
     l_x = pl.linspace(-10, 10, 1000)
 
     f_esp = lissage_esp(f, n, G)
 
     l_f = [f(x) for x in l_x]
-    l_esp = [f_esp(x) for x in l_x]
+    l_esp = [f_esp([x]) for x in l_x]
 
     phi_sigma = phi(sigma)
     phi_moins_1_sigma = phi_moins_1(sigma)
@@ -244,4 +244,62 @@ def courbe_et_borne_esp(f, n, sigma, u, l, delta, alpha):
     pl.show()
 
 
-# courbe_et_borne_esp(pl.sin, 1000, 1, 1, -1, 0.1, 0.99)
+# courbe_et_borne_esp(pl.sin, 100, 1, 1, -1, 0.1, 0.99)
+
+
+def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
+    '''
+    Prend une fonction f de Rd dans R et retourne sa fonction lissée.
+    Necessite de choisir :
+    Le nombre d'itération du tirage aléatoire du bruit n,
+    La variable aléatoire du bruit (ex: gaussienne centrée réduite) G,
+    La méthode de choix du tirage retenu (ex médiane). Si on se limite à des quantils alors p.
+    '''
+
+    G = bonne_gaussienne(sigma)
+    tirage_a_faire = True
+    h = {}
+    tirages = None
+
+    '''
+    Tous les calculs seront faits à partir du même échantillon.
+    Cela permet notamment d'obtenir le même résultat quand on recalcule f_lissee à un même point.
+    '''
+
+    def f_lissee(x):
+        '''
+        x est un element de Rd
+        '''
+
+        nonlocal tirage_a_faire
+        nonlocal h
+        nonlocal tirages
+
+        if tirage_a_faire:
+            tirages = []
+            for _ in range(n):
+                tirages.append(G(x))
+            tirage_a_faire = False
+
+        if tuple(x) not in h:
+            experience = []
+            for tirage in tirages:
+                x_bruite = x+tirage
+                experience.append(float(f(x_bruite)))
+
+            h[tuple(x)] = low(p, experience, alpha, epsilon, sigma), choix(
+                p, experience), up(p, experience, alpha, epsilon, sigma)
+
+        return h[tuple(x)]
+
+    return f_lissee
+
+
+def low(p, experience, alpha, epsilon, sigma):
+    alpha_low = phi(sigma)(phi_moins_1(sigma)(p)-epsilon/sigma)
+    return
+
+
+def up(p, experience, alpha, epsilon, sigma):
+    alpha_low = phi(sigma)(phi_moins_1(sigma)(p)+epsilon/sigma)
+    return
