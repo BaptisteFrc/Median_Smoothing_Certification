@@ -112,7 +112,7 @@ def test():
     pass
 
 
-def pre_image(img_path, model):
+def pre_image(img_path, model=model):
     img = Image.open(img_path)
     img = transforms.Grayscale()(img)
     transform_norm = transforms.Compose([transforms.ToTensor(),
@@ -127,6 +127,13 @@ def pre_image(img_path, model):
         output = model(img_normalized)
         pred_y = torch.max(output, 1)
         return pred_y
+
+
+def fonctionNN(liste):
+    img = list
+    model = NeuralNetwork()
+    model.load_state_dict(torch.load("saved_model/mnist.pt"))
+    return pre_image(img, model)
 
 
 if __name__ == '__main__':
