@@ -91,6 +91,7 @@ for epoch in range(num_epochs):
         best_mse = mse
         best_weights = copy.deepcopy(model.state_dict())
 model.load_state_dict(best_weights)
+torch.save(model.state_dict(), "regression.pt")
 print("MSE: %.2f" % best_mse)
 print("RMSE: %.2f" % np.sqrt(best_mse.detach().numpy()))
 plt.plot(history)
@@ -99,7 +100,8 @@ plt.show()
 
 
 def test(X, y):
-    model.load_state_dict(best_weights)
+    model = NeuralNetwork()
+    model.load_state_dict(torch.load("regression.pt"))
     model.eval()
     X = torch.tensor(X)
     y_pred = model(X)
