@@ -127,15 +127,13 @@ def pre_image(img_path, model=model):
         output = model(img_normalized)
         pred_y = torch.max(output, 1)
         return pred_y
-    
+
 
 def fonctionNN(liste):
-    img=list
+    img = list
     model = NeuralNetwork()
     model.load_state_dict(torch.load("saved_model/mnist.pt"))
-    return pre_image(img,model)
-
-    
+    return pre_image(img, model)
 
 
 if __name__ == '__main__':
@@ -145,4 +143,6 @@ if __name__ == '__main__':
     #train(num_epochs, model, loaders)
     # test()
     model.load_state_dict(torch.load("saved_model/mnist.pt"))
-    print(pre_image("data/1n.png", model))
+    pred = pre_image("data/1n.png", model)
+    proba, digit = pred[0].item(), pred[1].item()
+    print('the digit predicted is {} with a probability of {:.4f}'.format(digit, proba))
