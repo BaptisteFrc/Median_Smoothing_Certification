@@ -9,6 +9,7 @@ axes de dvp :
 remarques : epsilon=0 donne l'incertitude sur la valeur de f_lissee.
 '''
 
+from regression_model import test
 import scipy.stats
 import pylab as pl
 
@@ -268,7 +269,7 @@ def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
             for tirage in tirages:
                 x_bruite = x+tirage
                 experience.append(float(f(x_bruite)))
-                experience.sort()
+            experience.sort()
 
             h[tuple(x)] = low(p, experience, alpha, epsilon, sigma), choix(
                 p, experience), up(p, experience, alpha, epsilon, sigma)
@@ -341,3 +342,8 @@ def courbes_et_bornes_esp(f, n, sigma, u, l, alpha, epsilon):
 
 
 # courbes_et_bornes_esp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+
+
+test_lissee = lissage_et_bornes(test, 100, 1, 0.5, 0.9, 1)
+
+print(test_lissee([17.76, 42.42, 1009.09, 66.26]))
