@@ -4,6 +4,7 @@ axes de dvp :
 
 à faire :
 - clareté du code
+- en anglais
 
 remarques : epsilon=0 donne l'incertitude sur la valeur de f_lissee.
 '''
@@ -275,6 +276,9 @@ def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
         return h[tuple(x)]
 
     return f_lissee
+
+
+'''pas terrible le recalcul de phi'''
 
 
 def low(p, experience, alpha, epsilon, sigma):
