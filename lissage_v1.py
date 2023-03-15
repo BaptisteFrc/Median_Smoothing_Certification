@@ -96,7 +96,6 @@ def lissage_esp(f, n, G):
         if tirage_a_faire:
             tirages = []
             for _ in range(n):
-
                 tirages.append(G(x))
             tirage_a_faire = False
 
@@ -137,13 +136,16 @@ def choix_esp(experience):
 
 
 def courbe_diff(f, n, G, p):
+    '''
+    fonctionne seulement pour d=1
+    '''
 
     l_x = pl.linspace(-10, 10, 1000)
 
     f_lissee = lissage(f, n, G, p)
     f_esp = lissage_esp(f, n, G)
 
-    l_f = [f(x) for x in l_x]
+    l_f = [f([x]) for x in l_x]
     l_lissee = [f_lissee([x]) for x in l_x]
     l_esp = [f_esp([x]) for x in l_x]
 
@@ -159,22 +161,22 @@ def courbe_diff(f, n, G, p):
 # courbe_diff(pl.sin, 10, bonne_gaussienne(2), 0.5)
 
 
-def phi(sigma):
+def phi(sigma, moy=0):
     '''
     Retourne la cdf de la gaussienne centrée.
     '''
     def inner_phi(x):
-        return scipy.stats.norm.cdf(x, 0, sigma)
+        return scipy.stats.norm.cdf(x, moy, sigma)
 
     return inner_phi
 
 
-def phi_moins_1(sigma):
+def phi_moins_1(sigma, moy=0):
     '''
     Retourne la reciproque de la cdf de la gaussienne centrée.
     '''
     def inner_phi_moins_1(p):
-        return scipy.stats.norm.ppf(p, 0, sigma)
+        return scipy.stats.norm.ppf(p, moy, sigma)
 
     return inner_phi_moins_1
 
@@ -211,7 +213,6 @@ def lissage_et_bornes_esp(f, n, sigma, u, l, delta, alpha):
         if tirage_a_faire:
             tirages = []
             for _ in range(n):
-
                 tirages.append(G(x))
             tirage_a_faire = False
 
@@ -228,6 +229,8 @@ def lissage_et_bornes_esp(f, n, sigma, u, l, delta, alpha):
         return g[tuple(x)]
 
     return f_lissee
+
+# gtuple un peu moche
 
 
 def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
@@ -344,6 +347,5 @@ def courbes_et_bornes_esp(f, n, sigma, u, l, alpha, epsilon):
 # courbes_et_bornes_esp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 
-test_lissee = lissage_et_bornes(test, 100, 1, 0.5, 0.9, 1)
-
-print(test_lissee([17.76, 42.42, 1009.09, 66.26]))
+# test_lissee = lissage_et_bornes(test, 100, 1, 0.5, 0.9, 1)
+# print(test_lissee([17.76, 42.42, 1009.09, 66.26]))
