@@ -7,6 +7,7 @@ axes de dvp :
 - en anglais
 
 remarques : epsilon=0 donne l'incertitude sur la valeur de f_lissee.
+et justement les résultats d'incertitudes sur les bornes fonctionnent avec la véritable fonction lissée or la médiane telle qu'on l'a fait n'est qu'une approximation...
 '''
 
 from regression_model import test
@@ -36,6 +37,7 @@ def lissage(f, n, G, p):
     tirage_a_faire = True
     h = {}
     tirages = None
+    qp = q_p(p, n)
 
     '''
     Tous les calculs seront faits à partir du même échantillon.
@@ -64,7 +66,7 @@ def lissage(f, n, G, p):
                 experience.append(float(f(x_bruite)))
             experience.sort()
 
-            h[tuple(x)] = choix(p, experience)
+            h[tuple(x)] = experience[qp]
 
         return h[tuple(x)]
 
@@ -112,17 +114,11 @@ def lissage_esp(f, n, G):
     return f_lissee
 
 
-def choix(p, experience):
+def q_p(p, n):
     '''
-    Le résultat retourné peut être une moyenne de deux résultats atteignables alors que le papier préconise l'inverse
-    (pour être sûr que le résultat de f_lissée ait du sens dans le cas où f ne prendrait qu'un nombre fini de valeurs).
-    La liste en entrée doit déja être triée.
+    on ne prend pas la moyenne de deux valeurs. ici on a pris l'indice inférieur.
     '''
-    i = int(p*(len(experience)+1)//1)
-    if p*(len(experience)+1) != i:
-        return (experience[i-1]+experience[i])/2
-    else:
-        return experience[i-1]
+    return min(n-1, max(0, int((n+1)*p)-1))
 
 
 def choix_esp(experience):
@@ -230,8 +226,6 @@ def lissage_et_bornes_esp(f, n, sigma, u, l, delta, alpha):
 
     return f_lissee
 
-# gtuple un peu moche
-
 
 def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
     '''
@@ -246,6 +240,9 @@ def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
     tirage_a_faire = True
     h = {}
     tirages = None
+    ql = q_bot(p, n, alpha, epsilon, sigma)
+    qp = q_p(p, n)
+    qu = q_top(p, n, alpha, epsilon, sigma)
 
     '''
     Tous les calculs seront faits à partir du même échantillon.
@@ -274,29 +271,23 @@ def lissage_et_bornes(f, n, sigma, p, alpha, epsilon):
                 experience.append(float(f(x_bruite)))
             experience.sort()
 
-            h[tuple(x)] = low(p, experience, alpha, epsilon, sigma), choix(
-                p, experience), up(p, experience, alpha, epsilon, sigma)
+            h[tuple(x)] = experience[ql], experience[qp], experience[qu]
 
         return h[tuple(x)]
 
     return f_lissee
 
 
-'''pas terrible le recalcul de phi'''
+def q_bot(p, n, alpha, epsilon, sigma):
+    p_bot = phi(sigma)(phi_moins_1(sigma)(p)-epsilon/sigma)
+    ql = max(0, int(n - scipy.stats.binom.ppf(alpha, n, 1 - p_bot) - 2))
+    return ql
 
 
-def low(p, experience, alpha, epsilon, sigma):
-    p_low = phi(sigma)(phi_moins_1(sigma)(p)-epsilon/sigma)
-    n = len(experience)
-    ql = max(0, int(n - scipy.stats.binom.ppf(alpha, n, 1 - p_low) - 2))
-    return experience[ql]
-
-
-def up(p, experience, alpha, epsilon, sigma):
-    n = len(experience)
-    p_up = phi(sigma)(phi_moins_1(sigma)(p)+epsilon/sigma)
-    qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_up)))
-    return experience[qu]
+def q_top(p, n, alpha, epsilon, sigma):
+    p_top = phi(sigma)(phi_moins_1(sigma)(p)+epsilon/sigma)
+    qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_top)))
+    return qu
 
 
 def courbes_et_bornes(f, n, sigma, p, alpha, epsilon):
