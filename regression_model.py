@@ -28,10 +28,10 @@ X_train, X_test, y_train, y_test = train_test_split(
 # scaler.fit(X_train)
 #X_train = scaler.transform(X_train)
 #X_test = scaler.transform(X_test)
-X_train = torch.tensor(X_train.values, dtype=torch.float32)
-y_train = torch.tensor(y_train.values, dtype=torch.float32).reshape(-1, 1)
-X_test = torch.tensor(X_test.values, dtype=torch.float32)
-y_test = torch.tensor(y_test.values, dtype=torch.float32).reshape(-1, 1)
+X_train = torch.tensor(X_train.values, dtype=torch.float64)
+y_train = torch.tensor(y_train.values, dtype=torch.float64).reshape(-1, 1)
+X_test = torch.tensor(X_test.values, dtype=torch.float64)
+y_test = torch.tensor(y_test.values, dtype=torch.float64).reshape(-1, 1)
 
 
 class NeuralNetwork(nn.Module):
@@ -41,6 +41,7 @@ class NeuralNetwork(nn.Module):
         self.fc2 = nn.Linear(16, 8)
         self.fc3 = nn.Linear(8, 4)
         self.fc4 = nn.Linear(4, 1)
+        self.double()
 
     def forward(self, x):
         x = self.fc1(x)
