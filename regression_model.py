@@ -61,58 +61,62 @@ batch_size = 64
 num_epochs = 100
 batch_start = torch.arange(0, len(X_train), batch_size)
 # Hold the best model
-best_mse = np.inf   # init to infinity
+
 best_weights = None
 history = []
 
-model.train()
-for epoch in range(num_epochs):
+
+def train():
+    best_mse = np.inf
     model.train()
-    with tqdm.tqdm(batch_start, unit="batch", mininterval=0, disable=True) as bar:
-        bar.set_description(f"Epoch {epoch}")
-        for start in bar:
-            # take a batch
-            X_batch = X_train[start:start+batch_size]
-            y_batch = y_train[start:start+batch_size]
-            # forward pass
-            y_pred = model(X_batch)
-            loss = loss_fn(y_pred, y_batch)
-            # backward pass
-            optimizer.zero_grad()
-            loss.backward()
-            # update weights
-            optimizer.step()
-            # print progress
-            bar.set_postfix(mse=float(loss))
-    model.eval()
-    y_pred = model(X_test)
-    mse = loss_fn(y_pred, y_test)
-    history.append(mse.detach().numpy())
-    if mse < best_mse:
-        best_mse = mse
-        best_weights = copy.deepcopy(model.state_dict())
-model.load_state_dict(best_weights)
-torch.save(model.state_dict(), "regression.pt")
-print("MSE: %.2f" % best_mse)
-print("RMSE: %.2f" % np.sqrt(best_mse.detach().numpy()))
-plt.plot(history)
-plt.yscale('log')
-plt.show()
+    for epoch in range(num_epochs):
+        model.train()
+        with tqdm.tqdm(batch_start, unit="batch", mininterval=0, disable=True) as bar:
+            bar.set_description(f"Epoch {epoch}")
+            for start in bar:
+                # take a batch
+                X_batch = X_train[start:start+batch_size]
+                y_batch = y_train[start:start+batch_size]
+                # forward pass
+                y_pred = model(X_batch)
+                loss = loss_fn(y_pred, y_batch)
+                # backward pass
+                optimizer.zero_grad()
+                loss.backward()
+                # update weights
+                optimizer.step()
+                # print progress
+                bar.set_postfix(mse=float(loss))
+        model.eval()
+        y_pred = model(X_test)
+        mse = loss_fn(y_pred, y_test)
+        history.append(mse.detach().numpy())
+        if mse < best_mse:
+            best_mse = mse
+            best_weights = copy.deepcopy(model.state_dict())
+    model.load_state_dict(best_weights)
+    torch.save(model.state_dict(), "regression.pt")
+    print("MSE: %.2f" % best_mse)
+    print("RMSE: %.2f" % np.sqrt(best_mse.detach().numpy()))
+    plt.plot(history)
+    plt.yscale('log')
+    plt.show()
 
 
-def test(X, y):
+def test(X):
     model = NeuralNetwork()
     model.load_state_dict(torch.load("regression.pt"))
     model.eval()
-    X = torch.tensor(X)
+    X = torch.DoubleTensor(X)
     y_pred = model(X)
-    y = torch.tensor(y)
-    return loss_fn(y_pred, y), y_pred
+    return y_pred.item()
 
 
-tes1 = [14.96, 41.76, 1024.07, 73.17]
-tes2 = [463.26]
+# train()
 
-[17.76, 42.42, 1009.09, 66.26]
-[468.27]
-test([17.76, 42.42, 1009.09, 66.26], [468.27])
+# tes1 = [14.96, 41.76, 1024.07, 73.17]
+# tes2 = [463.26]
+
+# [17.76, 42.42, 1009.09, 66.26]
+# [468.27]
+# print(test([18, 43, 1009, 66]))
