@@ -36,7 +36,7 @@ def smoothing(f, n, G, p):
     This allows in particular to obtain the same result when recalculating f_smoothed at the same point.
     '''
 
-    def f_smoothed(x):
+    def smoothed_f(x):
         '''
         x is an element of Rd
         '''
@@ -52,17 +52,17 @@ def smoothing(f, n, G, p):
             draw_to_do = False
 
         if tuple(x) not in h:
-            experiment = []
+            sample = []
             for draw in draws:
-                x_noisy = x+draw
-                experiment.append(float(f(x_noisy)))
-            experiment.sort()
+                x_with_noise = x+draw
+                sample.append(float(f(x_with_noise)))
+            sample.sort()
 
-            h[tuple(x)] = experiment[qp]
+            h[tuple(x)] = sample[qp]
 
         return h[tuple(x)]
 
-    return f_smoothed
+    return smoothed_f
 
 
 def smoothing_esp(f, n, G):
@@ -97,12 +97,12 @@ def smoothing_esp(f, n, G):
             draw_to_do = False
 
         if tuple(x) not in g:
-            experiment = []
+            sample = []
             for draw in draws:
-                noisy_x = x+draw
-                experiment.append(float(f(noisy_x)))
+                x_with_noise = x+draw
+                sample.append(float(f(x_with_noise)))
 
-            g[tuple(x)] = esp_choice(experiment)
+            g[tuple(x)] = exp(sample)
 
         return g[tuple(x)]
 
@@ -116,17 +116,17 @@ def q_p(p, n):
     return min(n-1, max(0, int((n+1)*p)-1))
 
 
-def esp_choice(experiment):
+def exp(sample):
     '''
     Returns the expected value of the experiment.
     '''
     res = 0
-    for el in experiment:
+    for el in sample:
         res += el
-    return res/len(experiment)
+    return res/len(sample)
 
 
-def diff_curve(f, n, G, p):
+def graph_diff(f, n, G, p):
     '''
     only works for d=1
     '''
@@ -134,40 +134,40 @@ def diff_curve(f, n, G, p):
     l_x = pl.linspace(-10, 10, 1000)
 
     smoothed_f = smoothing(f, n, G, p)
-    esp_f = smoothing_esp(f, n, G)
+    exp_f = smoothing_exp(f, n, G)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x]) for x in l_x]
-    l_esp = [esp_f([x]) for x in l_x]
+    l_exp = [exp_f([x]) for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='f_p')
-    pl.plot(l_x, l_esp, label='f_esp')
+    pl.plot(l_x, l_exp, label='f_esp')
 
     pl.legend()
 
     pl.show()
 
 
-# diff_curve(pl.sin, 10, good_gaussian(2), 0.5)
+# graph_diff(pl.sin, 10, good_gaussian(2), 0.5)
 
 
-def phi(sigma, moy=0):
+def phi(sigma, mean=0):
     '''
     Returns the cdf of the centered Gaussian.
     '''
     def inner_phi(x):
-        return scipy.stats.norm.cdf(x, moy, sigma)
+        return scipy.stats.norm.cdf(x, mean, sigma)
 
     return inner_phi
 
 
-def phi_minus_1(sigma, moy=0):
+def phi_minus_1(sigma, mean=0):
     '''
     Returns the inverse of the cdf of the centered Gaussian.
     '''
     def inner_phi_minus_1(p):
-        return scipy.stats.norm.ppf(p, moy, sigma)
+        return scipy.stats.norm.ppf(p, mean, sigma)
 
     return inner_phi_minus_1
 
@@ -180,7 +180,7 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
     alpha is the confidence we want to have in the bound (0.999 for example).
     n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
     The security expression follows from the weak law of large numbers.
-    
+
     Args:
         f (function): _description_
         n (int): number of iterations for the random draw of the noise
@@ -221,14 +221,14 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
             draw_to_do = False
 
         if tuple(x) not in g:
-            experiment = []
+            sample = []
             for draw in draws:
-                x_noisy = x+draw
-                experiment.append(float(f(x_noisy)))
+                x_with_noise = x+draw
+                sample.append(float(f(x_with_noise)))
 
-            f_esp = esp_choice(experiment)
-            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-epsilon-security) /
-                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+epsilon+security)/sigma)
+            f_esp = exp(sample)
+            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-delta-security) /
+                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+delta+security)/sigma)
 
         return g[tuple(x)]
 
@@ -251,12 +251,12 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     """
 
     G = good_gaussian(sigma)
-    to_do_sampling = True
+    draw_to_do = True
     h = {}
-    samples = None
-    ql = q_bot(p, n, alpha, epsilon, sigma)
+    draws = None
+    ql = q_lower(p, n, alpha, epsilon, sigma)
     qp = q_p(p, n)
-    qu = q_top(p, n, alpha, epsilon, sigma)
+    qu = q_upper(p, n, alpha, epsilon, sigma)
 
     '''
     All calculations will be done from the same sample.
@@ -268,84 +268,84 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         x is an element of Rd
         '''
 
-        nonlocal to_do_sampling
+        nonlocal draw_to_do
         nonlocal h
-        nonlocal samples
+        nonlocal draws
 
-        if to_do_sampling:
-            samples = []
+        if draw_to_do:
+            draws = []
             for _ in range(n):
-                samples.append(G(x))
-            to_do_sampling = False
+                draws.append(G(x))
+            draw_to_do = False
 
         if tuple(x) not in h:
-            experiment = []
-            for sample in samples:
-                x_noisy = x+sample
-                experiment.append(float(f(x_noisy)))
-            experiment.sort()
+            sample = []
+            for draw in draws:
+                x_with_noise = x+draw
+                sample.append(float(f(x_with_noise)))
+            sample.sort()
 
-            h[tuple(x)] = experiment[ql], experiment[qp], experiment[qu]
+            h[tuple(x)] = sample[ql], sample[qp], sample[qu]
 
         return h[tuple(x)]
 
     return f_smoothed
 
 
-def q_bot(p, n, alpha, epsilon, sigma):
+def q_lower(p, n, alpha, epsilon, sigma):
     p_bot = phi(sigma)(phi_minus_1(sigma)(p)-epsilon/sigma)
     ql = max(0, int(n - scipy.stats.binom.ppf(alpha, n, 1 - p_bot) - 2))
     return ql
 
 
-def q_top(p, n, alpha, epsilon, sigma):
+def q_upper(p, n, alpha, epsilon, sigma):
     p_top = phi(sigma)(phi_minus_1(sigma)(p)+epsilon/sigma)
     qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_top)))
     return qu
 
 
-def curves_and_bounds(f, n, sigma, p, alpha, epsilon):
+def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
     l_x = pl.linspace(-10, 10, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
-    l_inf = [smoothed_f([x])[0] for x in l_x]
-    l_sup = [smoothed_f([x])[2] for x in l_x]
+    l_lower = [smoothed_f([x])[0] for x in l_x]
+    l_upper = [smoothed_f([x])[2] for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_inf, label='f_inf')
-    pl.plot(l_x, l_sup, label='f_sup')
+    pl.plot(l_x, l_lower, label='f_inf')
+    pl.plot(l_x, l_upper, label='f_sup')
 
     pl.legend()
 
     pl.show()
 
-# curves_and_bounds(pl.sin, 1000, 1, 0.5, 0.99, 0.1)
+# graph_and_bounds(pl.sin, 1000, 1, 0.5, 0.99, 0.1)
 
 
 def curves_and_bounds_esp(f, n, sigma, u, l, alpha, epsilon):
-    smoothed_f = smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha)
+    smoothed_f = smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha)
 
     l_x = pl.linspace(-10, 10, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
-    l_inf = [smoothed_f([x])[0] for x in l_x]
-    l_sup = [smoothed_f([x])[2] for x in l_x]
+    l_lower = [smoothed_f([x])[0] for x in l_x]
+    l_upper = [smoothed_f([x])[2] for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_inf, label='f_inf')
-    pl.plot(l_x, l_sup, label='f_sup')
+    pl.plot(l_x, l_lower, label='f_inf')
+    pl.plot(l_x, l_upper, label='f_sup')
 
     pl.legend()
 
     pl.show()
 
-# curves_and_bounds_esp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+# curves_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]))
