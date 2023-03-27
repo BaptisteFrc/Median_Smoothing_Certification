@@ -65,7 +65,7 @@ def smoothing(f, n, G, p):
     return smoothed_f
 
 
-def smoothing_esp(f, n, G):
+def smoothing_exp(f, n, G):
     """
 
     Args:
@@ -131,7 +131,7 @@ def graph_diff(f, n, G, p):
     only works for d=1
     '''
 
-    l_x = pl.linspace(-10, 10, 1000)
+    l_x = pl.linspace(2, 5, 1000)
 
     smoothed_f = smoothing(f, n, G, p)
     exp_f = smoothing_exp(f, n, G)
@@ -142,14 +142,14 @@ def graph_diff(f, n, G, p):
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='f_p')
-    pl.plot(l_x, l_exp, label='f_esp')
+    pl.plot(l_x, l_exp, label='f_exp')
 
     pl.legend()
 
     pl.show()
 
 
-# graph_diff(pl.sin, 10, good_gaussian(2), 0.5)
+# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.5), 0.5)
 
 
 def phi(sigma, mean=0):
@@ -172,7 +172,7 @@ def phi_minus_1(sigma, mean=0):
     return inner_phi_minus_1
 
 
-def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
+def smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha):
     """
     To have the bounds of the paper, we need to normalize f, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
@@ -226,9 +226,9 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
                 x_with_noise = x+draw
                 sample.append(float(f(x_with_noise)))
 
-            f_esp = exp(sample)
-            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-delta-security) /
-                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+delta+security)/sigma)
+            f_exp = exp(sample)
+            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_exp-l)/(u-l))-epsilon-security) /
+                                            sigma), f_exp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_exp-l)/(u-l))+epsilon+security)/sigma)
 
         return g[tuple(x)]
 
@@ -307,7 +307,7 @@ def q_upper(p, n, alpha, epsilon, sigma):
 def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
-    l_x = pl.linspace(-10, 10, 1000)
+    l_x = pl.linspace(2, 5, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
@@ -316,17 +316,18 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_inf')
-    pl.plot(l_x, l_upper, label='f_sup')
+    pl.plot(l_x, l_lower, label='f_l')
+    pl.plot(l_x, l_upper, label='f_u')
 
     pl.legend()
 
     pl.show()
 
-# graph_and_bounds(pl.sin, 1000, 1, 0.5, 0.99, 0.1)
+
+# graph_and_bounds(lambda x: abs(pl.sin(x)), 1000, 0.1, 0.5, 0.99, 0.1)
 
 
-def curves_and_bounds_esp(f, n, sigma, u, l, alpha, epsilon):
+def graph_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha)
 
     l_x = pl.linspace(-10, 10, 1000)
@@ -338,14 +339,15 @@ def curves_and_bounds_esp(f, n, sigma, u, l, alpha, epsilon):
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_inf')
-    pl.plot(l_x, l_upper, label='f_sup')
+    pl.plot(l_x, l_lower, label='f_l')
+    pl.plot(l_x, l_upper, label='f_u')
 
     pl.legend()
 
     pl.show()
 
-# curves_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
-# test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
-# print(test_smoothed([17.76, 42.42, 1009.09, 66.26]))
+# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+
+test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
+print(test_smoothed([17.76, 42.42, 1009.09, 66.26]))
