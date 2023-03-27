@@ -311,7 +311,7 @@ def courbes_et_bornes(f, n, sigma, p, alpha, epsilon):
     pl.show()
 
 
-# courbes_et_bornes(pl.sin, 1000, 1, 0.5, 0.99, 0.1)
+courbes_et_bornes(pl.sin, 1000, 0.1, 0.5, 0.99, 0.1)
 
 
 def courbes_et_bornes_esp(f, n, sigma, u, l, alpha, epsilon):
