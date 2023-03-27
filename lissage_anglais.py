@@ -152,24 +152,18 @@ def graph_diff(f, n, G, p):
 # graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.5), 0.5)
 
 
-def phi(sigma, mean=0):
+def phi(x, sigma, mean=0):
     '''
     Returns the cdf of the centered Gaussian.
     '''
-    def inner_phi(x):
-        return scipy.stats.norm.cdf(x, mean, sigma)
-
-    return inner_phi
+    return scipy.stats.norm.cdf(x, mean, sigma)
 
 
-def phi_minus_1(sigma, mean=0):
+def phi_minus_1(p, sigma, mean=0):
     '''
     Returns the inverse of the cdf of the centered Gaussian.
     '''
-    def inner_phi_minus_1(p):
-        return scipy.stats.norm.ppf(p, mean, sigma)
-
-    return inner_phi_minus_1
+    return scipy.stats.norm.ppf(p, mean, sigma)
 
 
 def smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha):
@@ -202,9 +196,6 @@ def smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha):
     draws = None
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
-    phi_sigma = phi(sigma)
-    phi_minus_1_sigma = phi_minus_1(sigma)
-
     def f_smoothed(x):
         '''
         x is an element of Rd
@@ -227,8 +218,8 @@ def smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha):
                 sample.append(float(f(x_with_noise)))
 
             f_exp = exp(sample)
-            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_exp-l)/(u-l))-epsilon-security) /
-                                            sigma), f_exp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_exp-l)/(u-l))+epsilon+security)/sigma)
+            g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security) /
+                                      sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)+epsilon+security)/sigma, sigma)
 
         return g[tuple(x)]
 
@@ -293,14 +284,14 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
 
 
 def q_lower(p, n, alpha, epsilon, sigma):
-    p_bot = phi(sigma)(phi_minus_1(sigma)(p)-epsilon/sigma)
-    ql = max(0, int(n - 1 - scipy.stats.binom.ppf(alpha, n, 1 - p_bot)))
+    p_l = phi(phi_minus_1(p, sigma)-epsilon/sigma, sigma)
+    ql = max(0, int(n - 1 - scipy.stats.binom.ppf(alpha, n, 1 - p_l)))
     return ql
 
 
 def q_upper(p, n, alpha, epsilon, sigma):
-    p_top = phi(sigma)(phi_minus_1(sigma)(p)+epsilon/sigma)
-    qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_top)))
+    p_u = phi(phi_minus_1(p, sigma)+epsilon/sigma, sigma)
+    qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_u)))
     return qu
 
 
@@ -347,7 +338,7 @@ def graph_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
