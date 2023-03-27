@@ -3,6 +3,7 @@ import scipy.stats
 import pylab as pl
 
 
+
 def good_gaussian(sigma, mean=0):
     '''
     Ensures that the Gaussian is well-valued in Rd.
@@ -20,7 +21,7 @@ def smoothing(f, n, G, p):
         f (function): Rd -> R
         n (int): number of iterations for the random draw for the noise
         G (function): random variable for the noise
-        p (float): depends on the method of draw chosen, here quantiles
+        p (float): depends on the method of draw chosen, here quantiles. p is between 0 and 1
 
     Returns:
         function: f_smoothed
@@ -242,7 +243,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         f (function): from Rd to R
         n (int): number of iterations of random noise generation
         sigma (float): standard deviation for her centered Gaussian distribution
-        p (float): quantile
+        p (float): quantile, between 0 and 1
         alpha (float): confidence rate
         epsilon (float): bounds for the attack
 
