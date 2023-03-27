@@ -20,7 +20,7 @@ def smoothing(f, n, G, p):
         f (function): Rd -> R
         n (int): number of iterations for the random draw for the noise
         G (function): random variable for the noise
-        p (float): depends on the method of draw chosen, here quantiles
+        p (float): depends on the method of draw chosen, here quantiles. p is between 0 and 1
 
     Returns:
         function: f_smoothed
@@ -65,7 +65,7 @@ def smoothing(f, n, G, p):
     return smoothed_f
 
 
-def smoothing_esp(f, n, G):
+def smoothing_exp(f, n, G):
     """
 
     Args:
@@ -172,7 +172,7 @@ def phi_minus_1(sigma, mean=0):
     return inner_phi_minus_1
 
 
-def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
+def smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha):
     """
     To have the bounds of the paper, we need to normalize f, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
@@ -227,8 +227,8 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
                 sample.append(float(f(x_with_noise)))
 
             f_esp = exp(sample)
-            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-delta-security) /
-                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+delta+security)/sigma)
+            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-epsilon-security) /
+                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+epsilon+security)/sigma)
 
         return g[tuple(x)]
 
@@ -242,7 +242,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         f (function): from Rd to R
         n (int): number of iterations of random noise generation
         sigma (float): standard deviation for her centered Gaussian distribution
-        p (float): quantile
+        p (float): quantile between 0 and 1
         alpha (float): confidence rate
         epsilon (float): bounds for the attack
 
