@@ -463,3 +463,9 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
 
 
 # max_graph(lambda x: abs(pl.sin(x)), 100000, 1, 0.5, 0.99, 0.1, 0.001)
+
+def out_of_bound():
+    """
+    simulates attacks to see if the proportion of tries out of bound is close to the expected value.
+    """
+    return
