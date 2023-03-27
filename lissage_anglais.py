@@ -3,6 +3,7 @@ import scipy.stats
 import pylab as pl
 
 
+
 def good_gaussian(sigma, mean=0):
     '''
     Ensures that the Gaussian is well-valued in Rd.
