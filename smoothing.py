@@ -3,6 +3,12 @@ from numpy import sort
 import numpy as np
 
 
+def p_moins():
+
+
+def p_plus():
+
+
 def Monte_Carlo(f, alpha, n, p, X, sigma=1, moy=0):
     '''évaluer en X la fonction f grâce à un lissage gaussien de paramètre n et p'''
     experience = []
