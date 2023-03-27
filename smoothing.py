@@ -10,7 +10,7 @@ def p_plus():
 
 
 def Monte_Carlo(f, alpha, n, p, X, sigma=1, moy=0):
-    '''évaluer en X la fonction f grâce à un lissage gaussien de paramètre n et p'''
+    '''évaluer en X la fonction f grâce à un lissage gaussien de paramètre sigma et moy'''
     experience = []
     length = len(X)
     for i in range(n):
@@ -33,7 +33,7 @@ def Monte_Carlo(f, alpha, n, p, X, sigma=1, moy=0):
 # h[X] permet donc d'évaluer la fonction lissée en X
 
 def lissage(f, alpha, n, p):
-    '''renvoie une fonction qui correspond aux bnornes de h_p'''
+    '''renvoie une fonction qui correspond aux bornes de h_p'''
     h = {}
 
     def f_lissee(X):
