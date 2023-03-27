@@ -350,4 +350,5 @@ def graph_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
 # graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
-print(test_smoothed([17.76, 42.42, 1009.09, 66.26]))
+print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
+      test([17.76, 42.42, 1009.09, 66.26]))
