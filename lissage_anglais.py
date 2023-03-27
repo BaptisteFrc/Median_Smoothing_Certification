@@ -14,13 +14,17 @@ def good_gaussian(sigma, mean=0):
 
 
 def smoothing(f, n, G, p):
-    '''
-    Takes a function f from Rd to R and returns its smoothed function.
-    Needs to choose:
-    The number of iterations of the random noise draw n,
-    The random variable of noise (e.g. standard centered Gaussian) G,
-    The method of choosing the selected draw (e.g. median). If limited to quantiles, then p.
-    '''
+    """Returns the smoothed function of the function in input f
+
+    Args:
+        f (function): Rd -> R
+        n (int): number of iterations for the random draw for the noise
+        G (function): random variable for the noise
+        p (float): depends on the method of draw chosen, here quantiles
+
+    Returns:
+        function: f_smoothed
+    """
 
     draw_to_do = True
     h = {}
@@ -48,13 +52,13 @@ def smoothing(f, n, G, p):
             draw_to_do = False
 
         if tuple(x) not in h:
-            experience = []
+            experiment = []
             for draw in draws:
                 x_noisy = x+draw
-                experience.append(float(f(x_noisy)))
-            experience.sort()
+                experiment.append(float(f(x_noisy)))
+            experiment.sort()
 
-            h[tuple(x)] = experience[qp]
+            h[tuple(x)] = experiment[qp]
 
         return h[tuple(x)]
 
@@ -62,13 +66,16 @@ def smoothing(f, n, G, p):
 
 
 def smoothing_esp(f, n, G):
-    '''
-    Takes a function f from Rd to R and returns its smoothed function.
-    Requires to choose:
-    The number of random noise draws n,
-    The random noise variable (e.g. centered reduced Gaussian) G,
-    The method for choosing the draw: here the expectation.
-    '''
+    """
+
+    Args:
+        f (function)): from Rd to R
+        n (int): number of iterations for the random draw of the noise
+        G (function): random variable of the noise (e.g. standard normal distribution)
+
+    Returns:
+        function: smoothed version of f
+    """
 
     draw_to_do = True
     g = {}
@@ -90,12 +97,12 @@ def smoothing_esp(f, n, G):
             draw_to_do = False
 
         if tuple(x) not in g:
-            experience = []
+            experiment = []
             for draw in draws:
                 noisy_x = x+draw
-                experience.append(float(f(noisy_x)))
+                experiment.append(float(f(noisy_x)))
 
-            g[tuple(x)] = esp_choice(experience)
+            g[tuple(x)] = esp_choice(experiment)
 
         return g[tuple(x)]
 
@@ -104,19 +111,19 @@ def smoothing_esp(f, n, G):
 
 def q_p(p, n):
     '''
-    we do not take the average of two values. here we took the lower index.
+    We do not take the average of two values. Here we choose to consider the lower index.
     '''
     return min(n-1, max(0, int((n+1)*p)-1))
 
 
-def esp_choice(experience):
+def esp_choice(experiment):
     '''
-    Returns the expectation of experience.
+    Returns the expected value of the experiment.
     '''
     res = 0
-    for el in experience:
+    for el in experiment:
         res += el
-    return res/len(experience)
+    return res/len(experiment)
 
 
 def diff_curve(f, n, G, p):
@@ -165,25 +172,28 @@ def phi_minus_1(sigma, moy=0):
     return inner_phi_minus_1
 
 
-def smoothing_and_bounds_esp(f, n, sigma, u, l, delta, alpha):
-    '''
-    To obtain the bounds of the paper, it is necessary to normalize f and therefore that it is bounded in [u,l].
-    The formula only works with a centered Gaussian so no need for G but only for sigma.
-    Needs to know the bound on the delta attacks (for now I put 0.1 at random for the 1D case).
-    alpha is the confidence we want to have in the bound (0.999 for example).
-    n is used to calculate smoothed_f and also
-    '''
-
-
-def smoothing_and_bounds_esp(f, n, sigma, u, l, delta, alpha):
-    '''
+def smoothing_and_bounds_esp(f, n, sigma, u, l, epsilon, alpha):
+    """
     To have the bounds of the paper, we need to normalize f, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
-    It is necessary to know the bound on the attacks delta (for now, I randomly put 0.1 for the 1D case).
+    It is necessary to know the bound on the attacks epsilon (for now, I randomly put 0.1 for the 1D case).
     alpha is the confidence we want to have in the bound (0.999 for example).
     n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
     The security expression follows from the weak law of large numbers.
-    '''
+    
+    Args:
+        f (function): _description_
+        n (int): number of iterations for the random draw of the noise
+        sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
+            the bigger the more trustworthy 
+        u (_type_): _description_
+        l (_type_): _description_
+        epsilon (float): bound of the attack
+        alpha (float): confidence rate of the bounds obtained for the output of the function
+
+    Returns:
+        function: f_smoothed
+    """
 
     G = good_gaussian(sigma)
 
@@ -211,14 +221,14 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, delta, alpha):
             draw_to_do = False
 
         if tuple(x) not in g:
-            experience = []
+            experiment = []
             for draw in draws:
                 x_noisy = x+draw
-                experience.append(float(f(x_noisy)))
+                experiment.append(float(f(x_noisy)))
 
-            f_esp = esp_choice(experience)
-            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-delta-security) /
-                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+delta+security)/sigma)
+            f_esp = esp_choice(experiment)
+            g[tuple(x)] = l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))-epsilon-security) /
+                                            sigma), f_esp, l+(u-l)*phi_sigma((sigma*phi_minus_1_sigma((f_esp-l)/(u-l))+epsilon+security)/sigma)
 
         return g[tuple(x)]
 
@@ -226,13 +236,19 @@ def smoothing_and_bounds_esp(f, n, sigma, u, l, delta, alpha):
 
 
 def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
-    '''
-    Takes a function f from Rd to R and returns its smoothed function.
-    Requires choosing:
-    The number of iterations of random noise generation n,
-    The random variable of the noise (e.g. centered reduced Gaussian) G,
-    The method for selecting the drawn sample (e.g. median). If we limit ourselves to quantiles, then p.
-    '''
+    """Takes a function f and returns its smoothed function.
+
+    Args:
+        f (function): from Rd to R
+        n (int): number of iterations of random noise generation
+        sigma (float): standard deviation for her centered Gaussian distribution
+        p (float): quantile
+        alpha (float): confidence rate
+        epsilon (float): bounds for the attack
+
+    Returns:
+        function: the smoothed version of the function f
+    """
 
     G = good_gaussian(sigma)
     to_do_sampling = True
@@ -263,13 +279,13 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
             to_do_sampling = False
 
         if tuple(x) not in h:
-            experience = []
+            experiment = []
             for sample in samples:
                 x_noisy = x+sample
-                experience.append(float(f(x_noisy)))
-            experience.sort()
+                experiment.append(float(f(x_noisy)))
+            experiment.sort()
 
-            h[tuple(x)] = experience[ql], experience[qp], experience[qu]
+            h[tuple(x)] = experiment[ql], experiment[qp], experiment[qu]
 
         return h[tuple(x)]
 
