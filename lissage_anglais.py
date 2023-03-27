@@ -323,10 +323,11 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
 
     pl.show()
 
+
 # graph_and_bounds(pl.sin, 1000, 1, 0.5, 0.99, 0.1)
 
 
-def curves_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
+def graph_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, u, l, epsilon, alpha)
 
     l_x = pl.linspace(-10, 10, 1000)
@@ -345,7 +346,8 @@ def curves_and_bounds_exp(f, n, sigma, u, l, alpha, epsilon):
 
     pl.show()
 
-# curves_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+
+# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]))
