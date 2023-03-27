@@ -242,7 +242,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         f (function): from Rd to R
         n (int): number of iterations of random noise generation
         sigma (float): standard deviation for her centered Gaussian distribution
-        p (float): quantile between 0 and 1
+        p (float): quantile, between 0 and 1
         alpha (float): confidence rate
         epsilon (float): bounds for the attack
 
