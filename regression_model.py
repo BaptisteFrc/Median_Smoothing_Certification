@@ -36,33 +36,35 @@ y_test = torch.tensor(y_test.values, dtype=torch.float64).reshape(-1, 1)
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
-        self.fc1 = nn.Linear(4, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 8)
-        self.fc4 = nn.Linear(8, 1)
-        self.dropout1 = nn.Dropout(0.0001)
-        self.dropout2 = nn.Dropout(0.0001)
-        self.dropout3 = nn.Dropout(0.0001)
+        self.linear1 = nn.Linear(4, 32)
+        self.linear2 = nn.Linear(4, 32)
+        self.fc1 = nn.Linear(4, 64)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32, 16)
+        self.fc4 = nn.Linear(16, 8)
+        self.fc6 = nn.Linear(8, 1)
+        self.dropout1 = nn.Dropout(0.1)
+        self.dropout2 = nn.Dropout(0.1)
         self.double()
 
     def forward(self, x):
         x = self.fc1(x)
-        x = self.dropout1(x)
         x = F.relu(x)
         x = self.fc2(x)
-        x = self.dropout2(x)
         x = F.relu(x)
         x = self.fc3(x)
-        x = self.dropout3(x)
         x = F.relu(x)
-        y_pred = self.fc4(x)
+        x = self.fc4(x)
+        x = F.relu(x)
+
+        y_pred = self.fc6(x)
         return y_pred
 
 
 # parametres
 batch_size = 64
-num_epochs = 250
-learning_rate = 0.0005
+num_epochs = 150
+learning_rate = 0.001
 
 model = NeuralNetwork()
 loss_fn = nn.MSELoss()
@@ -125,9 +127,15 @@ def test(X):
     return y_pred.item()
 
 
-train()
+def load_model():
+    model = NeuralNetwork()
+    model.load_state_dict(torch.load("regression.pt"))
+    return model
+
+
+# train()
 # tes1 = [14.96, 41.76, 1024.07, 73.17]
 # tes2 = [463.26]
 # [17.76, 42.42, 1009.09, 66.26]
 # [468.27]
-print(test([17.76, 42.42, 1009.09, 66.26]))
+#print(test([17.76, 42.42, 1009.09, 66.26]))
