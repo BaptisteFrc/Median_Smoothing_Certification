@@ -1,5 +1,6 @@
 # slide: explication d'une attaque et de la FGSM
-# We construct the image adversary by calculating the gradients of the loss, computing the sign of the gradient, and then using the sign to build the image adversary
+# inspiré de https://pytorch.org/tutorials/beginner/fgsm_tutorial.html
+#  We construct the image adversary by calculating the gradients of the loss, computing the sign of the gradient, and then using the sign to build the image adversary
 from regression_model import load_model
 import torch
 from torch import nn
@@ -12,6 +13,7 @@ input = [[[17.76, 42.42, 1009.09, 66.26], [468.27]]]
 def fgsm_attack(image, epsilon, data_grad):
     # Collect the element-wise sign of the data gradient
     sign_data_grad = data_grad.sign()
+    print(sign_data_grad)
     # Create the perturbed image by adjusting each pixel of the input image
     perturbed_image = image + epsilon*sign_data_grad
     # Adding clipping to maintain [0,1] range
@@ -55,4 +57,4 @@ def test(model, input, epsilon):
     return perturbed_data.tolist(), output.tolist(), attacked_output.tolist()
 
 
-print(test(model, input, 1))
+print(test(model, input, 2))
