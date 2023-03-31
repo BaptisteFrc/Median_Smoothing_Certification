@@ -184,9 +184,8 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
         n (int): number of iterations for the random draw of the noise
         sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
             the bigger the more trustworthy 
-
-        l (_type_): _description_
-        u (_type_): _description_
+        l (float): lower bound for the value taken by f
+        u (float): upper bound for the value taken by f
         epsilon (float): bound of the attack
         alpha (float): confidence rate of the bounds obtained for the output of the function
 
@@ -473,8 +472,8 @@ def max_bound_exp(f, n, sigma, l, u, alpha, epsilon):
         n (int): number of iterations for the random draw of the noise
         sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
             the bigger the more trustworthy 
-        u (_type_): _description_
-        l (_type_): _description_
+        l (float): lower bound for the value taken by f
+        u (float): upper bound for the value taken by f
         alpha (float): confidence rate of the bounds obtained for the output of the function
         epsilon (float): bound of the attack
 
@@ -546,7 +545,7 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     pl.show()
 
 
-max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
