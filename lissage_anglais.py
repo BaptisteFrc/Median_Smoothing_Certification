@@ -517,7 +517,8 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     pl.show()
 
 
-# max_graph(lambda x: abs(pl.sin(x)), 100000, 1, 0.5, 0.99, 0.1, 0.001)
+max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -543,7 +544,7 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     pl.show()
 
 
-max_graph_exp(lambda x: abs(pl.sin(x)), 10000, 1, 0, 1, 0.9, 0.1)
+# max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
 def out_of_bound():
