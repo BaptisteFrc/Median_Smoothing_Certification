@@ -57,4 +57,4 @@ def test(model, input, epsilon):
     return perturbed_data.tolist(), output.tolist(), attacked_output.tolist()
 
 
-print(test(model, input, 2))
+print(test(model, input, 0.5))
