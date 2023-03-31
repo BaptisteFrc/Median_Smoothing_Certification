@@ -1,4 +1,5 @@
-from regression_model import test
+from regression_model import load_model, NN_to_function
+from attack_FGSM import attack_1
 import scipy.stats
 import pylab as pl
 
@@ -341,6 +342,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
 
 # graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
+# test = NN_to_function(load_model())
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
