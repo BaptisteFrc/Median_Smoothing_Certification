@@ -7,6 +7,8 @@ from torch import optim
 from torch.autograd import Variable
 from PIL import Image
 import matplotlib.pyplot as plt
+from cleverhans.torch.attacks import fast_gradient_method
+# d
 
 
 class NeuralNetwork(nn.Module):
@@ -112,7 +114,7 @@ def test():
     pass
 
 
-def pre_image(img_path, model=model):
+def pre_image(img_path):
     img = Image.open(img_path)
     img = transforms.Grayscale()(img)
     transform_norm = transforms.Compose([transforms.ToTensor(),
@@ -120,8 +122,9 @@ def pre_image(img_path, model=model):
     # get normalized image
     img_normalized = transform_norm(img).float()
     img_normalized = img_normalized.unsqueeze_(0)
+    x_adv = attack.generate(img_normalized, torch.tensor([3]))
     # input = Variable(image_tensor)
-    plt.imshow(img_normalized[0].permute(1, 2, 0), cmap="gray")
+    plt.imshow(x_adv.permute(1, 2, 0), cmap="gray")
     with torch.no_grad():
         model.eval()
         output = model(img_normalized)
@@ -140,9 +143,10 @@ if __name__ == '__main__':
     model = NeuralNetwork()
     num_epochs = 3
     optimizer = optim.Adam(model.parameters(), lr=0.01)
+    attack = fast_gradient_method(model, eps=0.3)
     #train(num_epochs, model, loaders)
     # test()
     model.load_state_dict(torch.load("saved_model/mnist.pt"))
-    pred = pre_image("data/1n.png", model)
+    pred = pre_image("data/1n.png")
     proba, digit = pred[0].item(), pred[1].item()
     print('the digit predicted is {} with a probability of {:.4f}'.format(digit, proba))
