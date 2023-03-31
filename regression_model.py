@@ -55,14 +55,6 @@ y_test = torch.tensor(y_test.values, dtype=torch.float64).reshape(-1, 1)
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
-        self.fc1 = nn.Linear(4, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 8)
-        self.fc4 = nn.Linear(8, 1)
-
-        #self.dropout1 = nn.Dropout(0.0001)
-        #self.dropout2 = nn.Dropout(0.0001)
-        #self.dropout3 = nn.Dropout(0.0001)
         self.linear1 = nn.Linear(4, 32)
         self.linear2 = nn.Linear(4, 32)
         self.fc1 = nn.Linear(4, 64)
@@ -76,17 +68,13 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
-        #x = self.dropout1(x)
         x = F.relu(x)
         x = self.fc2(x)
-        #x = self.dropout2(x)
         x = F.relu(x)
         x = self.fc3(x)
         x = F.relu(x)
         x = self.fc4(x)
         x = F.relu(x)
-        #x = self.dropout3(x)
-        y_pred = self.fc4(x)
 
         y_pred = self.fc6(x)
         return y_pred
