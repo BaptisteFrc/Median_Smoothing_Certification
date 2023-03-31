@@ -157,14 +157,13 @@ def smoothing_and_bounds_mean(f, n, sigma, l, u, epsilon, alpha):
 
     G = good_gaussian(sigma)
 
-    g = {}
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
         x is an element of Rd
         '''
-
+        g = {}
         draws = []
         for _ in range(n):
             draws.append(G(x))
@@ -199,8 +198,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     """
 
     G = good_gaussian(sigma)
-    h = {}
-    draws = None
+
     ql = q_lower(p, n, alpha, epsilon, sigma)
     qp = q_p(p, n)
     qu = q_upper(p, n, alpha, epsilon, sigma)
@@ -214,7 +212,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         '''
         x is an element of Rd
         '''
-
+        h = {}
         draws = []
         for _ in range(n):
             draws.append(G(x))
@@ -338,8 +336,7 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
 
     G = good_gaussian(sigma)
-    h = {}
-    draws = None
+
     ql = q_lower(p, n, alpha, epsilon, sigma)
     qp = q_p(p, n)
     qu = q_upper(p, n, alpha, epsilon, sigma)
@@ -355,7 +352,7 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
         '''
         x is an element of Rd
         '''
-
+        h = {}
         draws = []
         for _ in range(n):
             draws.append(G(x))
@@ -397,21 +394,13 @@ def max_bound_mean(f, n, sigma, l, u, epsilon, alpha):
     """
 
     G = good_gaussian(sigma)
-
-    draw_to_do = True
-    g = {}
-    draws = None
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
         x is an element of Rd
         '''
-
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
-
+        g = {}
         draws = []
         for _ in range(n):
             draws.append(G(x))
