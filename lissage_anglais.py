@@ -19,53 +19,33 @@ def smoothing(f, n, G, p):
     Args:
         f (function): Rd -> R
         n (int): number of iterations for the random draw for the noise
-        G (function): random variable for the noise
+        G (function): random variable for the noise. G takes x in entry, a list of length d. The function is defined to work with the random variable good_gaussian defined previously.
         p (float): depends on the method of draw chosen, here quantiles. p is between 0 and 1
 
     Returns:
         function: f_smoothed
     """
 
-    draw_to_do = True
-    h = {}
-    draws = None
     qp = q_p(p, n)
-
-    '''
-    All calculations will be made from the same sample.
-    This allows in particular to obtain the same result when recalculating f_smoothed at the same point.
-    '''
 
     def smoothed_f(x):
         '''
-        x is an element of Rd
+        x is an element of Rd. Returns the value of smoothed_f(x), the smoothed version of f.
         '''
-
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
-
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[qp]
+        h = []
+        sample = []
+        for _ in range(n):
+            x_with_noise = x+G(x)
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
+        h[tuple(x)] = sample[qp]
 
         return h[tuple(x)]
 
     return smoothed_f
 
 
-def smoothing_exp(f, n, G):
+def smoothing_mean(f, n, G):
     """
 
     Args:
@@ -77,32 +57,17 @@ def smoothing_exp(f, n, G):
         function: smoothed version of f
     """
 
-    draw_to_do = True
-    g = {}
-    draws = None
-
     def smoothed_f(x):
         '''
         x is an element of Rd
         '''
-
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
-
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-
-            g[tuple(x)] = exp(sample)
+        g = []
+        sample = []
+        for _ in range(n):
+            x_with_noise = x+G(x)
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
+        g[tuple(x)] = mean(sample)
 
         return g[tuple(x)]
 
@@ -116,9 +81,9 @@ def q_p(p, n):
     return min(n-1, max(0, int((n+1)*p)-1))
 
 
-def exp(sample):
+def mean(sample):
     '''
-    Returns the expected value of the experiment.
+    Returns the expected value of the meaneriment.
     '''
     res = 0
     for el in sample:
@@ -134,15 +99,15 @@ def graph_diff(f, n, G, p):
     l_x = pl.linspace(2, 5, 1000)
 
     smoothed_f = smoothing(f, n, G, p)
-    exp_f = smoothing_exp(f, n, G)
+    mean_f = smoothing_mean(f, n, G)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x]) for x in l_x]
-    l_exp = [exp_f([x]) for x in l_x]
+    l_mean = [mean_f([x]) for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='f_p')
-    pl.plot(l_x, l_exp, label='f_exp')
+    pl.plot(l_x, l_mean, label='f_mean')
 
     pl.legend()
 
@@ -166,14 +131,14 @@ def phi_minus_1(p, sigma, mean=0):
     return scipy.stats.norm.ppf(p, mean, sigma)
 
 
-def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
+def smoothing_and_bounds_mean(f, n, sigma, l, u, epsilon, alpha):
     """
     To have the bounds of the paper, we need f to be normalized, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
     It is necessary to know the bound on the attacks epsilon (for now, I randomly put 0.1 for the 1D case).
     alpha is the confidence we want to have in the bound (0.999 for example).
     n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
-    The security expression follows from the weak law of large numbers.
+    The security meanression follows from the weak law of large numbers.
 
     Args:
         f (function): _description_
@@ -192,9 +157,7 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
 
     G = good_gaussian(sigma)
 
-    draw_to_do = True
     g = {}
-    draws = None
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
@@ -202,25 +165,18 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
         x is an element of Rd
         '''
 
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
 
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-
-            f_exp = exp(sample)
-            g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security) /
-                                      sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)+epsilon+security)/sigma, sigma)
+        f_mean = mean(sample)
+        g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_mean-l)/(u-l), sigma)-epsilon-security) /
+                                  sigma, sigma), f_mean, l+(u-l)*phi((sigma*phi_minus_1((f_mean-l)/(u-l), sigma)+epsilon+security)/sigma, sigma)
 
         return g[tuple(x)]
 
@@ -243,7 +199,6 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     """
 
     G = good_gaussian(sigma)
-    draw_to_do = True
     h = {}
     draws = None
     ql = q_lower(p, n, alpha, epsilon, sigma)
@@ -260,24 +215,17 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         x is an element of Rd
         '''
 
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
 
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[ql], sample[qp], sample[qu]
+        h[tuple(x)] = sample[ql], sample[qp], sample[qu]
 
         return h[tuple(x)]
 
@@ -319,8 +267,8 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
 # graph_and_bounds(pl.sin, 1000, 0.1, 0.5, 0.99, 0.1)
 
 
-def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
-    smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
+def graph_and_bounds_mean(f, n, sigma, l, u, alpha, epsilon):
+    smoothed_f = smoothing_and_bounds_mean(f, n, sigma, l, u, epsilon, alpha)
 
     l_x = pl.linspace(-10, 10, 1000)
 
@@ -339,7 +287,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+# graph_and_bounds_mean(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
@@ -347,6 +295,9 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
 
 
 def p_minus(n, p, alpha, precision):
+    '''
+
+    '''
     a = 0
     b = 1
     while b-a > precision:
@@ -387,7 +338,6 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
 
     G = good_gaussian(sigma)
-    draw_to_do = True
     h = {}
     draws = None
     ql = q_lower(p, n, alpha, epsilon, sigma)
@@ -406,38 +356,31 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
         x is an element of Rd
         '''
 
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
 
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[qlmax], sample[ql], sample[qp], sample[qu], sample[qumax]
+        h[tuple(x)] = sample[qlmax], sample[ql], sample[qp], sample[qu], sample[qumax]
 
         return h[tuple(x)]
 
     return f_smoothed
 
 
-def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
+def max_bound_mean(f, n, sigma, l, u, epsilon, alpha):
     """
     To have the bounds of the paper, we need to normalize f, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
     It is necessary to know the bound on the attacks epsilon (for now, I randomly put 0.1 for the 1D case).
     alpha is the confidence we want to have in the bound (0.999 for example).
     n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
-    The security expression follows from the weak law of large numbers.
+    The security meanression follows from the weak law of large numbers.
 
     Args:
         f (function): _description_
@@ -469,24 +412,21 @@ def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
         nonlocal g
         nonlocal draws
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
 
-            f_exp = exp(sample)
-            f_l = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
+            f_mean = mean(sample)
+            f_l = l+(u-l)*phi((sigma*phi_minus_1((f_mean-l) /
                                                  (u-l), sigma)-epsilon-security)/sigma, sigma)
-            f_u = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
+            f_u = l+(u-l)*phi((sigma*phi_minus_1((f_mean-l) /
                                                  (u-l), sigma)+epsilon+security)/sigma, sigma)
-            g[tuple(x)] = f_l-security, f_l, f_exp, f_u, f_u+security
+            g[tuple(x)] = f_l-security, f_l, f_mean, f_u, f_u+security
 
         return g[tuple(x)]
 
@@ -520,8 +460,8 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
 max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
 
 
-def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
-    smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
+def max_graph_mean(f, n, sigma, l, u, alpha, epsilon):
+    smoothed_f = max_bound_mean(f, n, sigma, l, u, epsilon, alpha)
 
     l_x = pl.linspace(2, 5, 1000)
 
@@ -544,11 +484,11 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     pl.show()
 
 
-# max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
+# max_graph_mean(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
 def out_of_bound():
     """
-    simulates attacks to see if the proportion of tries out of bound is close to the expected value.
+    simulates attacks to see if the proportion of tries out of bound is close to the meanected value.
     """
     return
