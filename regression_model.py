@@ -11,11 +11,30 @@ import copy
 import numpy as np
 
 # changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pasd
+# changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pas
+
+"""
+looking for when the nn will not give satisfying results...
+modèle 1: 4,128,64,8,1 
+modèle 2: 4,128,8,1
+modèle 3: 4,64,8,1
+modèle 4: 4,16,8,1
+modèle 5: 4,4,8,1
+modèle 6: 4,4,4,1
+modèle 7: 4,4,1
+modèle 8: 4,1
+... it always does appparently
+
+Tries to have a better loss...
+... unconclusive.
+"""
+
+
 # Import data
 '''
-The dataset contains 9568 data points collected from a Combined Cycle Power Plant over 6 years (2006-2011), 
-when the power plant was set to work with full load. 
-Features consist of hourly average ambient variables Temperature (T), Ambient Pressure (AP), Relative Humidity (RH) and Exhaust Vacuum (V) 
+The dataset contains 9568 data points collected from a Combined Cycle Power Plant over 6 years (2006-2011),
+when the power plant was set to work with full load.
+Features consist of hourly average ambient variables Temperature (T), Ambient Pressure (AP), Relative Humidity (RH) and Exhaust Vacuum (V)
 to predict the net hourly electrical energy output (EP)  of the plant.
 '''
 df = pd.read_csv("data/sheet1.csv", delimiter=';')
@@ -23,10 +42,10 @@ X = df[['AT', 'V', 'AP', 'RH']]
 y = df['PE']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, train_size=0.75, shuffle=True)
-#scaler = StandardScaler()
+# scaler = StandardScaler()
 # scaler.fit(X_train)
-#X_train = scaler.transform(X_train)
-#X_test = scaler.transform(X_test)
+# X_train = scaler.transform(X_train)
+# X_test = scaler.transform(X_test)
 X_train = torch.tensor(X_train.values, dtype=torch.float64)
 y_train = torch.tensor(y_train.values, dtype=torch.float64).reshape(-1, 1)
 X_test = torch.tensor(X_test.values, dtype=torch.float64)
@@ -36,6 +55,14 @@ y_test = torch.tensor(y_test.values, dtype=torch.float64).reshape(-1, 1)
 class NeuralNetwork(nn.Module):
     def __init__(self):
         super(NeuralNetwork, self).__init__()
+        self.fc1 = nn.Linear(4, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 8)
+        self.fc4 = nn.Linear(8, 1)
+
+        #self.dropout1 = nn.Dropout(0.0001)
+        #self.dropout2 = nn.Dropout(0.0001)
+        #self.dropout3 = nn.Dropout(0.0001)
         self.linear1 = nn.Linear(4, 32)
         self.linear2 = nn.Linear(4, 32)
         self.fc1 = nn.Linear(4, 64)
@@ -49,13 +76,17 @@ class NeuralNetwork(nn.Module):
 
     def forward(self, x):
         x = self.fc1(x)
+        #x = self.dropout1(x)
         x = F.relu(x)
         x = self.fc2(x)
+        #x = self.dropout2(x)
         x = F.relu(x)
         x = self.fc3(x)
         x = F.relu(x)
         x = self.fc4(x)
         x = F.relu(x)
+        #x = self.dropout3(x)
+        y_pred = self.fc4(x)
 
         y_pred = self.fc6(x)
         return y_pred
@@ -108,8 +139,8 @@ def train():
     torch.save(model.state_dict(), "regression.pt")
     print("MSE: %.2f" % mse)
     print("RMSE: %.2f" % np.sqrt(mse.detach().numpy()))
-    plt.plot(train_loss, label='train_loss')
-    plt.plot(test_loss, label='test_loss')
+    plt.scatter(np.arange(num_epochs), train_loss, label='train_loss', s=10)
+    plt.scatter(np.arange(num_epochs), test_loss, label='test_loss', s=10)
     plt.yscale('log')
     plt.xlabel('Epoch')
     plt.ylabel('MSE(log)')
