@@ -10,7 +10,7 @@ import tqdm
 import copy
 import numpy as np
 
-# changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pas
+# changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pasd
 # Import data
 '''
 The dataset contains 9568 data points collected from a Combined Cycle Power Plant over 6 years (2006-2011), 
