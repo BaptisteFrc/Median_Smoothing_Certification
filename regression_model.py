@@ -137,13 +137,14 @@ def train():
     plt.show()
 
 
-def test(X):
-    model = NeuralNetwork()
-    model.load_state_dict(torch.load("regression.pt"))
-    model.eval()
-    X = torch.DoubleTensor(X)
-    y_pred = model(X)
-    return y_pred.item()
+def NN_to_function(model):
+    def inner(input):
+        model.load_state_dict(torch.load("regression.pt"))
+        model.eval()
+        input = torch.DoubleTensor(input)
+        y_pred = model(input)
+        return y_pred.item()
+    return inner
 
 
 def load_model():

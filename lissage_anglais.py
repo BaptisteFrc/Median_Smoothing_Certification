@@ -1,6 +1,9 @@
-from regression_model import test
+from regression_model import load_model, NN_to_function
+from attack_FGSM import attack_1
 import scipy.stats
 import pylab as pl
+
+#il reste des commentaires à compléter
 
 
 def good_gaussian(sigma, mean=0):
@@ -29,7 +32,7 @@ def smoothing(f, n, G, p):
     draw_to_do = True
     h = {}
     draws = None
-    qp = q_p(p, n)
+    qp = q_p(n, p)
 
     '''
     All calculations will be made from the same sample.
@@ -109,7 +112,7 @@ def smoothing_exp(f, n, G):
     return smoothed_f
 
 
-def q_p(p, n):
+def q_p(n, p):
     '''
     We do not take the average of two values. Here we choose to consider the lower index.
     '''
@@ -166,23 +169,23 @@ def phi_minus_1(p, sigma, mean=0):
     return scipy.stats.norm.ppf(p, mean, sigma)
 
 
-def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
+def smoothing_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     """
     To have the bounds of the paper, we need f to be normalized, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
     It is necessary to know the bound on the attacks epsilon (for now, I randomly put 0.1 for the 1D case).
     alpha is the confidence we want to have in the bound (0.999 for example).
-    n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
+    n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, 
+    the more confident we are.
     The security expression follows from the weak law of large numbers.
 
     Args:
-        f (function): _description_
+        f (function): the function we want to certify
         n (int): number of iterations for the random draw of the noise
         sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
             the bigger the more trustworthy 
-
-        l (_type_): _description_
-        u (_type_): _description_
+        l (float): lower bound for the value taken by f
+        u (float): upper bound for the value taken by f
         epsilon (float): bound of the attack
         alpha (float): confidence rate of the bounds obtained for the output of the function
 
@@ -220,7 +223,8 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
 
             f_exp = exp(sample)
             g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security) /
-                                      sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)+epsilon+security)/sigma, sigma)
+                                      sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l),
+                                        sigma)+epsilon+security)/sigma, sigma)
 
         return g[tuple(x)]
 
@@ -246,9 +250,9 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     draw_to_do = True
     h = {}
     draws = None
-    ql = q_lower(p, n, alpha, epsilon, sigma)
-    qp = q_p(p, n)
-    qu = q_upper(p, n, alpha, epsilon, sigma)
+    ql = q_lower(n, sigma, p, alpha, epsilon)
+    qp = q_p(n, p)
+    qu = q_upper(n, sigma, p, alpha, epsilon)
 
     '''
     All calculations will be done from the same sample.
@@ -284,13 +288,13 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     return f_smoothed
 
 
-def q_lower(p, n, alpha, epsilon, sigma):
+def q_lower(n, sigma, p, alpha, epsilon):
     p_l = phi(phi_minus_1(p, sigma)-epsilon/sigma, sigma)
     ql = max(0, int(n - 1 - scipy.stats.binom.ppf(alpha, n, 1 - p_l)))
     return ql
 
 
-def q_upper(p, n, alpha, epsilon, sigma):
+def q_upper(n, sigma, p, alpha, epsilon):
     p_u = phi(phi_minus_1(p, sigma)+epsilon/sigma, sigma)
     qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_u)))
     return qu
@@ -320,7 +324,7 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
 
 
 def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
-    smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
+    smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon)
 
     l_x = pl.linspace(-10, 10, 1000)
 
@@ -341,17 +345,29 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
 
 # graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
+# test = NN_to_function(load_model())
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
 
 def p_minus(n, p, alpha, precision):
+    """_summary_
+
+    Args:
+        n (int): number of iterations of random noise generation
+        p (float): quantile, between 0 and 1
+        alpha (float): confidence rate of the output
+        precision (float): bound for the dichotomy method
+
+    Returns:
+        _type_: _description_
+    """
     a = 0
     b = 1
     while b-a > precision:
         m = (a+b)/2
-        if scipy.stats.binom.cdf(q_p(p, n), n, m) > alpha:
+        if scipy.stats.binom.cdf(q_p(n, p), n, m) > alpha:
             a = m
         else:
             b = m
@@ -359,11 +375,22 @@ def p_minus(n, p, alpha, precision):
 
 
 def p_plus(n, p, alpha, precision):
+    """_summary_
+
+    Args:
+        n (int): number of iterations of random noise generation
+        p (float): quantile, between 0 and 1
+        alpha (float): confidence rate of the output
+        precision (float): bound for the dichotomy method
+
+    Returns:
+        _type_: _description_
+    """
     a = 0
     b = 1
     while b-a > precision:
         m = (a+b)/2
-        if scipy.stats.binom.cdf(n-1-q_p(p, n), n, 1-m) > alpha:
+        if scipy.stats.binom.cdf(n-1-q_p(n, p), n, 1-m) > alpha:
             b = m
         else:
             a = m
@@ -390,11 +417,11 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     draw_to_do = True
     h = {}
     draws = None
-    ql = q_lower(p, n, alpha, epsilon, sigma)
-    qp = q_p(p, n)
-    qu = q_upper(p, n, alpha, epsilon, sigma)
-    qlmax = q_lower(p_minus(n, p, alpha, precision), n, alpha, epsilon, sigma)
-    qumax = q_upper(p_plus(n, p, alpha, precision), n, alpha, epsilon, sigma)
+    ql = q_lower(n, sigma, p, alpha, epsilon)
+    qp = q_p(n, p)
+    qu = q_upper(n, sigma, p, alpha, epsilon)
+    qlmax = q_lower(n, sigma, p_minus(n, p, alpha, precision), alpha, epsilon)
+    qumax = q_upper(n, sigma, p_plus(n, p, alpha, precision), alpha, epsilon)
 
     '''
     All calculations will be done from the same sample.
@@ -430,13 +457,14 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     return f_smoothed
 
 
-def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
+def max_bound_exp(f, n, sigma, l, u, alpha, epsilon):
     """
     To have the bounds of the paper, we need to normalize f, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
     It is necessary to know the bound on the attacks epsilon (for now, I randomly put 0.1 for the 1D case).
     alpha is the confidence we want to have in the bound (0.999 for example).
-    n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, the more confident we are.
+    n is used to calculate f_smoothed and also for the quality of the bound because the larger n is, 
+    the more confident we are.
     The security expression follows from the weak law of large numbers.
 
     Args:
@@ -444,10 +472,10 @@ def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
         n (int): number of iterations for the random draw of the noise
         sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
             the bigger the more trustworthy 
-        u (_type_): _description_
-        l (_type_): _description_
-        epsilon (float): bound of the attack
+        l (float): lower bound for the value taken by f
+        u (float): upper bound for the value taken by f
         alpha (float): confidence rate of the bounds obtained for the output of the function
+        epsilon (float): bound of the attack
 
     Returns:
         function: f_smoothed
@@ -517,11 +545,22 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     pl.show()
 
 
-max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
-    smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
+    """Plots the initial function, the smoothed function and the bounds
+    Args:
+        f (function): _description_
+        n (int): number of iterations for the random draw of the noise
+        sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
+            the bigger the more trustworthy 
+        l (float): lower bound for the value taken by f
+        u (float): upper bound for the value taken by f
+        alpha (float): confidence rate of the bounds obtained for the output of the function
+        epsilon (float): bound of the attack
+    """
+    smoothed_f = max_bound_exp(f, n, sigma, l, u, alpha, epsilon)
 
     l_x = pl.linspace(2, 5, 1000)
 
