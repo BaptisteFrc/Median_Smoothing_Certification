@@ -32,7 +32,7 @@ def smoothing(f, n, G, p):
         '''
         x is an element of Rd. Returns the value of smoothed_f(x), the smoothed version of f.
         '''
-        h = []
+        h = {}
         sample = []
         for _ in range(n):
             x_with_noise = x+G(x)
@@ -61,7 +61,7 @@ def smoothing_mean(f, n, G):
         '''
         x is an element of Rd
         '''
-        g = []
+        g = {}
         sample = []
         for _ in range(n):
             x_with_noise = x+G(x)
@@ -114,7 +114,7 @@ def graph_diff(f, n, G, p):
     pl.show()
 
 
-# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.5), 0.5)
+graph_diff(lambda x: abs(pl.sin(x)), 10, good_gaussian(0.01), 0.5)
 
 
 def phi(x, sigma, mean=0):
@@ -202,7 +202,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     ql = q_lower(p, n, alpha, epsilon, sigma)
     qp = q_p(p, n)
     qu = q_upper(p, n, alpha, epsilon, sigma)
-
+    h = {}
     '''
     All calculations will be done from the same sample.
     This makes it possible in particular to obtain the same result when recalculating f_smoothed at the same point.
@@ -212,7 +212,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
         '''
         x is an element of Rd
         '''
-        h = {}
+
         draws = []
         for _ in range(n):
             draws.append(G(x))
@@ -262,7 +262,7 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds(pl.sin, 1000, 0.1, 0.5, 0.99, 0.1)
+# graph_and_bounds(pl.sin, 10, 0.1, 0.5, 0.99, 0.1)
 
 
 def graph_and_bounds_mean(f, n, sigma, l, u, alpha, epsilon):
