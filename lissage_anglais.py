@@ -119,7 +119,7 @@ def q_p(p, n):
 
 def exp(sample):
     '''
-    Returns the expected value of the experiment.
+    Returns the mean of the sample.
     '''
     res = 0
     for el in sample:
@@ -150,7 +150,7 @@ def graph_diff(f, n, G, p):
     pl.show()
 
 
-# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.5), 0.5)
+# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.1), 0.5)
 
 
 def phi(x, sigma, mean=0):
@@ -519,7 +519,7 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     pl.show()
 
 
-max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
@@ -549,8 +549,18 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 # max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
-def out_of_bound():
+def out_of_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
     return
+
+
+def Rd_to_R(f, d):
+    def inner(x):
+        return f([x]*d)
+    return inner
+
+
+max_graph(Rd_to_R(NN_to_function(load_model), 4),
+          1000, 1, 0.5, 0.99, 0.1, 0.001)

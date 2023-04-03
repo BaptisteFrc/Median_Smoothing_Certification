@@ -58,4 +58,4 @@ def attack_1(model, input, epsilon):
     return perturbed_data.tolist(), output.tolist(), attacked_output.tolist()
 
 
-print(attack_1(model, input, 0.5))
+# print(attack_1(model, input, 0.5))
