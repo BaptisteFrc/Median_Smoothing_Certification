@@ -548,6 +548,7 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 
 # max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
+'''
 
 def out_of_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
@@ -564,3 +565,5 @@ def Rd_to_R(f, d):
 
 max_graph(Rd_to_R(NN_to_function(load_model), 4),
           1000, 1, 0.5, 0.99, 0.1, 0.001)
+
+'''
