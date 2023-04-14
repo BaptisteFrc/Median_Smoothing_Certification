@@ -5,6 +5,7 @@ cohérence des formalisme
 segmentation
 deux versions (draw_to_do)
 suite
+pylab
 '''
 
 
@@ -12,6 +13,7 @@ from regression_model import load_model, NN_to_function
 from attack_FGSM import attack_1
 import scipy.stats
 import pylab as pl
+from random import random
 
 
 def good_gaussian(sigma, mean=0):
@@ -555,18 +557,55 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 
     pl.show()
 
-
 # max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
-'''
 
-def out_of_bound(f, n, sigma, p, alpha, epsilon, precision):
+def norme_2(x):
+    res = 0
+    for el in x:
+        res += el**2
+    return pl.sqrt(res)
+
+
+def attack_set(x, epsilon, n_attack):
+    l_attack = []
+    d = len(x)
+    for i in range(n_attack):
+        attack = [random()-0.5 for _ in range(d)]
+        attack = pl.array(attack)*epsilon/norme_2(attack)
+        l_attack.append(attack)
+    return l_attack
+
+
+def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
-    return
+    res = [0]*5
+    l_attack = attack_set(x, epsilon, n_attack)
+    l_x = [x+attack for attack in l_attack]
+    smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
+    lower = smoothed_f(x)[1]
+    upper = smoothed_f(x)[3]
+    lmax = smoothed_f(x)[0]
+    umax = smoothed_f(x)[4]
+    for x_with_noise in l_x:
+        answer = smoothed_f(x_with_noise)[2]
+        if answer < lmax:
+            res[0] += 1
+        elif lmax <= answer < lower:
+            res[1] += 1
+        elif lower <= answer < upper:
+            res[2] += 1
+        elif upper <= answer < umax:
+            res[3] += 1
+        elif umax <= answer:
+            res[4] += 1
+    return pl.array(res)/len(l_attack)
 
-'''
+
+print(out_of_bound(NN_to_function(load_model()),
+      1000, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.90, 0.01, 0.001, 100))
 
 
 def Rd_to_R(f, d):
@@ -575,5 +614,5 @@ def Rd_to_R(f, d):
     return inner
 
 
-max_graph(Rd_to_R(NN_to_function(load_model()), 4),
-          3, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(Rd_to_R(NN_to_function(load_model()), 4),
+#           3, 1, 0.5, 0.99, 0.1, 0.001)
