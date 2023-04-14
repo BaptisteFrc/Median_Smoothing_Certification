@@ -14,13 +14,13 @@ input = [[[17.76, 42.42, 1009.09, 66.26], [468.27]]]
 def fgsm_attack(image, epsilon, data_grad):
     # Collect the element-wise sign of the data gradient
     sign_data_grad = data_grad.sign()
-    print(sign_data_grad)
+    # print(sign_data_grad)
     # Create the perturbed image by adjusting each pixel of the input image
-    perturbed_image = image + sqrt(epsilon)/2*sign_data_grad
+    attack = sqrt(epsilon)/2*sign_data_grad
     # Adding clipping to maintain [0,1] range
     # perturbed_image = nn.clamp(perturbed_image, 0, 1)
     # Return the perturbed image
-    return perturbed_image
+    return attack
 
 
 def attack_1(model, input, epsilon):
@@ -49,13 +49,13 @@ def attack_1(model, input, epsilon):
         data_grad = data.grad.data
 
         # Call FGSM Attack
-        perturbed_data = fgsm_attack(data, epsilon, data_grad)
+        attack = fgsm_attack(data, epsilon, data_grad)
 
         # Re-classify the perturbed image
-        attacked_output = model(perturbed_data)
+        attacked_output = model(data+attack)
 
     # Return the accuracy and an adversarial example
-    return perturbed_data.tolist(), output.tolist(), attacked_output.tolist()
+    return attack.tolist(), output.tolist(), attacked_output.tolist()
 
 
 # print(attack_1(model, input, 0.5))

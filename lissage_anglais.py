@@ -603,9 +603,38 @@ def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
             res[4] += 1
     return pl.array(res)/len(l_attack)
 
+# print(out_of_bound(NN_to_function(load_model()),
+#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
 
-print(out_of_bound(NN_to_function(load_model()),
-      1000, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.90, 0.01, 0.001, 100))
+
+def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_attack, attack):
+    """
+    simulates attacks to see if the proportion of tries out of bound is close to the expected value.
+    """
+    res = [0]*5
+    smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
+    lower = smoothed_f(x)[1]
+    upper = smoothed_f(x)[3]
+    lmax = smoothed_f(x)[0]
+    umax = smoothed_f(x)[4]
+    x_with_noise = x+pl.array(attack[0])
+    for _ in range(n_attack):
+        answer = smoothed_f(x_with_noise)[2]
+        if answer < lmax:
+            res[0] += 1
+        elif lmax <= answer < lower:
+            res[1] += 1
+        elif lower <= answer < upper:
+            res[2] += 1
+        elif upper <= answer < umax:
+            res[3] += 1
+        elif umax <= answer:
+            res[4] += 1
+    return pl.array(res)/n_attack
+
+
+print(out_of_bound_same_attack(NN_to_function(load_model()),
+      100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 1, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
 
 
 def Rd_to_R(f, d):
