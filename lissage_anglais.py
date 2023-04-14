@@ -1,3 +1,13 @@
+'''
+mean
+commentaires
+cohérence des formalisme
+segmentation
+deux versions (draw_to_do)
+suite
+'''
+
+
 from regression_model import load_model, NN_to_function
 from attack_FGSM import attack_1
 import scipy.stats
