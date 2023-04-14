@@ -508,7 +508,7 @@ def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
 def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = pl.linspace(2, 5, 1000)
+    l_x = pl.linspace(2, 5, 2)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -535,7 +535,7 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
 
-    l_x = pl.linspace(2, 5, 1000)
+    l_x = pl.linspace(2, 5, 2)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -566,14 +566,14 @@ def out_of_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
     return
 
+'''
+
 
 def Rd_to_R(f, d):
     def inner(x):
-        return f([x]*d)
+        return f(list(x)*d)
     return inner
 
 
-max_graph(Rd_to_R(NN_to_function(load_model), 4),
-          1000, 1, 0.5, 0.99, 0.1, 0.001)
-
-'''
+max_graph(Rd_to_R(NN_to_function(load_model()), 4),
+          3, 1, 0.5, 0.99, 0.1, 0.001)
