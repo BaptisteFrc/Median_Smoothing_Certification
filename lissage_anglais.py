@@ -3,7 +3,7 @@ from attack_FGSM import attack_1
 import scipy.stats
 import pylab as pl
 
-#il reste des commentaires à compléter
+# il reste des commentaires à compléter
 
 
 def good_gaussian(sigma, mean=0):
@@ -33,11 +33,6 @@ def smoothing(f, n, G, p):
     h = {}
     draws = None
     qp = q_p(n, p)
-
-    '''
-    All calculations will be made from the same sample.
-    This allows in particular to obtain the same result when recalculating f_smoothed at the same point.
-    '''
 
     def smoothed_f(x):
         '''
@@ -224,7 +219,7 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
             f_exp = exp(sample)
             g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security) /
                                       sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l),
-                                        sigma)+epsilon+security)/sigma, sigma)
+                                                                                           sigma)+epsilon+security)/sigma, sigma)
 
         return g[tuple(x)]
 
