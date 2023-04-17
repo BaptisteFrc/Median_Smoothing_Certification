@@ -32,41 +32,26 @@ def smoothing(f, n, G, p):
     Args:
         f (function): Rd -> R
         n (int): number of iterations for the random draw for the noise
-        G (function): random variable for the noise
+        G (function): random variable for the noise. G takes x in entry, a list of length d. The function is defined to work with the random variable good_gaussian defined previously.
         p (float): depends on the method of draw chosen, here quantiles. p is between 0 and 1
 
     Returns:
         function: f_smoothed
     """
 
-    draw_to_do = True
-    h = {}
-    draws = None
-    qp = q_p(n, p)
+    qp = q_p(p, n)
 
     def smoothed_f(x):
         '''
-        x is an element of Rd
+        x is an element of Rd. Returns the value of smoothed_f(x), the smoothed version of f.
         '''
-
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
-
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[qp]
+        h = {}
+        sample = []
+        for _ in range(n):
+            x_with_noise = x+G(x)
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
+        h[tuple(x)] = sample[qp]
 
         return h[tuple(x)]
 
@@ -85,32 +70,17 @@ def smoothing_exp(f, n, G):
         function: smoothed version of f
     """
 
-    draw_to_do = True
-    g = {}
-    draws = None
-
     def smoothed_f(x):
         '''
         x is an element of Rd
         '''
-
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
-
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-
-            g[tuple(x)] = exp(sample)
+        g = {}
+        sample = []
+        for _ in range(n):
+            x_with_noise = x+G(x)
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
+        g[tuple(x)] = exp(sample)
 
         return g[tuple(x)]
 
@@ -142,22 +112,22 @@ def graph_diff(f, n, G, p):
     l_x = pl.linspace(2, 5, 1000)
 
     smoothed_f = smoothing(f, n, G, p)
-    exp_f = smoothing_exp(f, n, G)
+    mean_f = smoothing_exp(f, n, G)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x]) for x in l_x]
-    l_exp = [exp_f([x]) for x in l_x]
+    l_mean = [mean_f([x]) for x in l_x]
 
     pl.plot(l_x, l_f, label='f')
     pl.plot(l_x, l_smoothed, label='f_p')
-    pl.plot(l_x, l_exp, label='f_exp')
+    pl.plot(l_x, l_mean, label='f_mean')
 
     pl.legend()
 
     pl.show()
 
 
-# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.1), 0.5)
+graph_diff(lambda x: abs(pl.sin(x)), 10, good_gaussian(0.01), 0.5)
 
 
 def phi(x, sigma, mean=0):
@@ -200,31 +170,21 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
 
     G = good_gaussian(sigma)
 
-    draw_to_do = True
-    g = {}
-    draws = None
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
         x is an element of Rd
         '''
+        g = {}
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
-
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
 
             f_exp = exp(sample)
             g[tuple(x)] = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security) /
@@ -252,9 +212,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     """
 
     G = good_gaussian(sigma)
-    draw_to_do = True
-    h = {}
-    draws = None
+
     ql = q_lower(n, sigma, p, alpha, epsilon)
     qp = q_p(n, p)
     qu = q_upper(n, sigma, p, alpha, epsilon)
@@ -263,30 +221,24 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     All calculations will be done from the same sample.
     This makes it possible in particular to obtain the same result when recalculating f_smoothed at the same point.
     '''
+    h = {}
 
     def f_smoothed(x):
         '''
         x is an element of Rd
         '''
 
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
 
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[ql], sample[qp], sample[qu]
+        h[tuple(x)] = sample[ql], sample[qp], sample[qu]
 
         return h[tuple(x)]
 
@@ -325,7 +277,7 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds(pl.sin, 1000, 0.1, 0.5, 0.99, 0.1)
+# graph_and_bounds(pl.sin, 10, 0.1, 0.5, 0.99, 0.1)
 
 
 def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
@@ -348,7 +300,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+# graph_and_bounds_mean(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
 
 # test = NN_to_function(load_model())
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
@@ -419,9 +371,7 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     """
 
     G = good_gaussian(sigma)
-    draw_to_do = True
-    h = {}
-    draws = None
+
     ql = q_lower(n, sigma, p, alpha, epsilon)
     qp = q_p(n, p)
     qu = q_upper(n, sigma, p, alpha, epsilon)
@@ -437,25 +387,18 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
         '''
         x is an element of Rd
         '''
+        h = {}
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        nonlocal draw_to_do
-        nonlocal h
-        nonlocal draws
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
+        sample.sort()
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in h:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-            sample.sort()
-
-            h[tuple(x)] = sample[qlmax], sample[ql], sample[qp], sample[qu], sample[qumax]
+        h[tuple(x)] = sample[qlmax], sample[ql], sample[qp], sample[qu], sample[qumax]
 
         return h[tuple(x)]
 
@@ -487,39 +430,28 @@ def max_bound_exp(f, n, sigma, l, u, alpha, epsilon):
     """
 
     G = good_gaussian(sigma)
-
-    draw_to_do = True
-    g = {}
-    draws = None
     security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
         x is an element of Rd
         '''
+        g = {}
+        draws = []
+        for _ in range(n):
+            draws.append(G(x))
 
-        nonlocal draw_to_do
-        nonlocal g
-        nonlocal draws
+        sample = []
+        for draw in draws:
+            x_with_noise = x+draw
+            sample.append(float(f(x_with_noise)))
 
-        if draw_to_do:
-            draws = []
-            for _ in range(n):
-                draws.append(G(x))
-            draw_to_do = False
-
-        if tuple(x) not in g:
-            sample = []
-            for draw in draws:
-                x_with_noise = x+draw
-                sample.append(float(f(x_with_noise)))
-
-            f_exp = exp(sample)
-            f_l = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
+            f_mean = exp(sample)
+            f_l = l+(u-l)*phi((sigma*phi_minus_1((f_mean-l) /
                                                  (u-l), sigma)-epsilon-security)/sigma, sigma)
-            f_u = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
+            f_u = l+(u-l)*phi((sigma*phi_minus_1((f_mean-l) /
                                                  (u-l), sigma)+epsilon+security)/sigma, sigma)
-            g[tuple(x)] = f_l-security, f_l, f_exp, f_u, f_u+security
+            g[tuple(x)] = f_l-security, f_l, f_mean, f_u, f_u+security
 
         return g[tuple(x)]
 
@@ -551,43 +483,6 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
 
 
 # max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
-
-
-def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
-    """Plots the initial function, the smoothed function and the bounds
-    Args:
-        f (function): _description_
-        n (int): number of iterations for the random draw of the noise
-        sigma (float): standard deviation of the noise, has an impact on the quality of the bound, 
-            the bigger the more trustworthy 
-        l (float): lower bound for the value taken by f
-        u (float): upper bound for the value taken by f
-        alpha (float): confidence rate of the bounds obtained for the output of the function
-        epsilon (float): bound of the attack
-    """
-    smoothed_f = max_bound_exp(f, n, sigma, l, u, alpha, epsilon)
-
-    l_x = pl.linspace(2, 5, 2)
-
-    l_f = [f([x]) for x in l_x]
-    l_smoothed = [smoothed_f([x])[2] for x in l_x]
-    l_lower = [smoothed_f([x])[1] for x in l_x]
-    l_upper = [smoothed_f([x])[3] for x in l_x]
-    l_lmax = [smoothed_f([x])[0] for x in l_x]
-    l_umax = [smoothed_f([x])[4] for x in l_x]
-
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_l')
-    pl.plot(l_x, l_upper, label='f_u')
-    pl.plot(l_x, l_lmax, label='f_lmax')
-    pl.plot(l_x, l_umax, label='f_umax')
-
-    pl.legend()
-
-    pl.show()
-
-# max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
 def norme_2(x):
@@ -640,6 +535,36 @@ def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
 def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_attack, attack):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
+    """
+    res = [0]*5
+    l_attack = attack_set(x, epsilon, n_attack)
+    l_x = [x+attack for attack in l_attack]
+    smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
+    lower = smoothed_f(x)[1]
+    upper = smoothed_f(x)[3]
+    lmax = smoothed_f(x)[0]
+    umax = smoothed_f(x)[4]
+    for x_with_noise in l_x:
+        answer = smoothed_f(x_with_noise)[2]
+        if answer < lmax:
+            res[0] += 1
+        elif lmax <= answer < lower:
+            res[1] += 1
+        elif lower <= answer < upper:
+            res[2] += 1
+        elif upper <= answer < umax:
+            res[3] += 1
+        elif umax <= answer:
+            res[4] += 1
+    return pl.array(res)/len(l_attack)
+
+# print(out_of_bound(NN_to_function(load_model()),
+#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
+
+
+def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_attack, attack):
+    """
+    simulates attacks to see if the proportion of tries out of bound is close to the meanected value.
     """
     res = [0]*5
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
