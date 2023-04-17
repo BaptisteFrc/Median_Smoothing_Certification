@@ -459,7 +459,7 @@ def attack_set(x, epsilon, n_attack):
     d = len(x)
     for i in range(n_attack):
         attack = [random()-0.5 for _ in range(d)]
-        attack = np.array(attack)*epsilon/norme_2(attack)
+        attack = np.array(attack)*epsilon/norm_2(attack)
         l_attack.append(attack)
     return l_attack
 
