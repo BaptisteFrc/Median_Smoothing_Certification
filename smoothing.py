@@ -1,12 +1,7 @@
 import scipy.stats as stat
 from numpy import sort
 import numpy as np
-
-
-def p_moins():
-
-
-def p_plus():
+from math import *
 
 
 def Monte_Carlo(f, alpha, n, p, X, sigma=1, moy=0):
@@ -32,9 +27,9 @@ def Monte_Carlo(f, alpha, n, p, X, sigma=1, moy=0):
 
 # h[X] permet donc d'évaluer la fonction lissée en X
 
-def lissage(f, alpha, n, p):
+def lissage(f, alpha=0.1, n, p):
     '''renvoie une fonction qui correspond aux bornes de h_p'''
-    h = {}
+    h = {}  # la création d'un dictionnaire permet de s'assurer que pour une valeur donnée, f renvoie toujours la même chose
 
     def f_lissee(X):
         '''renvoie un couple de borne'''
@@ -42,3 +37,6 @@ def lissage(f, alpha, n, p):
             h[X] = Monte_Carlo(f, alpha, n, p, X)
         return h[X]
     return f_lissee
+
+
+f = lissage(sin)

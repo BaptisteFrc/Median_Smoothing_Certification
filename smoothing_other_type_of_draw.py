@@ -111,7 +111,11 @@ def q_p(p, n):
 
 def exp(sample):
     '''
+<<<<<<< HEAD
     Returns the mean value of the experiment.
+=======
+    Returns the expected value of the experiment.
+>>>>>>> Sarah
     '''
     res = 0
     for el in sample:
