@@ -12,17 +12,18 @@ sigma/epsilon
 from regression_model import load_model, NN_to_function
 from attack_FGSM import attack_1
 import scipy.stats
-import pylab as pl
+import numpy as np
+import matplotlib.pyplot as plt 
 from random import random
 
 
-def good_gaussian(sigma, mean=0):
+def good_gaussian(sigma):
     '''
     Ensures that the Gaussian is well-valued in Rd.
     '''
     def inner(x):
         d = len(x)
-        return scipy.stats.multivariate_normal(mean*pl.ones(d), sigma*pl.identity(d)).rvs()
+        return scipy.stats.multivariate_normal(0, sigma*np.identity(d)).rvs()
     return inner
 
 
@@ -113,7 +114,7 @@ def graph_diff(f, n, G, p):
     only works for d=1
     '''
 
-    l_x = pl.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 1000)
 
     smoothed_f = smoothing(f, n, G, p)
     exp_f = smoothing_exp(f, n, G)
@@ -122,30 +123,30 @@ def graph_diff(f, n, G, p):
     l_smoothed = [smoothed_f([x]) for x in l_x]
     l_exp = [exp_f([x]) for x in l_x]
 
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='f_p')
-    pl.plot(l_x, l_exp, label='f_exp')
+    plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_smoothed, label='f_p')
+    plt.plot(l_x, l_exp, label='f_exp')
 
-    pl.legend()
+    plt.legend()
 
-    pl.show()
+    plt.show()
 
 
 # graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.1), 0.5)
 
 
-def phi(x, sigma, mean=0):
+def phi(x, sigma):
     '''
     Returns the cdf of the centered Gaussian.
     '''
-    return scipy.stats.norm.cdf(x, mean, sigma)
+    return scipy.stats.norm.cdf(x, 0, sigma)
 
 
-def phi_minus_1(p, sigma, mean=0):
+def phi_minus_1(p, sigma):
     '''
     Returns the inverse of the cdf of the centered Gaussian.
     '''
-    return scipy.stats.norm.ppf(p, mean, sigma)
+    return scipy.stats.norm.ppf(p, 0, sigma)
 
 
 def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
@@ -173,7 +174,7 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
     """
 
     G = good_gaussian(sigma)
-    security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
+    security = (u-l)/(2*np.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
@@ -248,47 +249,47 @@ def q_upper(p, n, alpha, epsilon, sigma):
 def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
-    l_x = pl.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
     l_lower = [smoothed_f([x])[0] for x in l_x]
     l_upper = [smoothed_f([x])[2] for x in l_x]
 
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_l')
-    pl.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_smoothed, label='smoothed_f')
+    plt.plot(l_x, l_lower, label='f_l')
+    plt.plot(l_x, l_upper, label='f_u')
 
-    pl.legend()
+    plt.legend()
 
-    pl.show()
+    plt.show()
 
 
-# graph_and_bounds(pl.sin, 100, 0.1, 0.5, 0.99, 0.1)
+# graph_and_bounds(np.sin, 100, 0.1, 0.5, 0.99, 0.1)
 
 
 def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
 
-    l_x = pl.linspace(-10, 10, 1000)
+    l_x = np.linspace(-10, 10, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
     l_lower = [smoothed_f([x])[0] for x in l_x]
     l_upper = [smoothed_f([x])[2] for x in l_x]
 
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_l')
-    pl.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_smoothed, label='smoothed_f')
+    plt.plot(l_x, l_lower, label='f_l')
+    plt.plot(l_x, l_upper, label='f_u')
 
-    pl.legend()
+    plt.legend()
 
-    pl.show()
+    plt.show()
 
 
-graph_and_bounds_exp(pl.sin, 100, 1, -1, 1, 0.99, 0.1)
+graph_and_bounds_exp(np.sin, 100, 1, -1, 1, 0.99, 0.1)
 
 # test = NN_to_function(load_model())
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
@@ -388,7 +389,7 @@ def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
     """
 
     G = good_gaussian(sigma)
-    security = (u-l)/(2*pl.sqrt(n*(1-alpha)))
+    security = (u-l)/(2*np.sqrt(n*(1-alpha)))
 
     def f_smoothed(x):
         '''
@@ -414,7 +415,7 @@ def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
 def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = pl.linspace(2, 5, 2)
+    l_x = np.linspace(2, 5, 2)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -423,25 +424,25 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     l_lmax = [smoothed_f([x])[0] for x in l_x]
     l_umax = [smoothed_f([x])[4] for x in l_x]
 
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_l')
-    pl.plot(l_x, l_upper, label='f_u')
-    pl.plot(l_x, l_lmax, label='f_lmax')
-    pl.plot(l_x, l_umax, label='f_umax')
+    plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_smoothed, label='smoothed_f')
+    plt.plot(l_x, l_lower, label='f_l')
+    plt.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_lmax, label='f_lmax')
+    plt.plot(l_x, l_umax, label='f_umax')
 
-    pl.legend()
+    plt.legend()
 
-    pl.show()
+    plt.show()
 
 
-# max_graph(lambda x: abs(pl.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(np.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
 
-    l_x = pl.linspace(2, 5, 2)
+    l_x = np.linspace(2, 5, 2)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -450,25 +451,25 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     l_lmax = [smoothed_f([x])[0] for x in l_x]
     l_umax = [smoothed_f([x])[4] for x in l_x]
 
-    pl.plot(l_x, l_f, label='f')
-    pl.plot(l_x, l_smoothed, label='smoothed_f')
-    pl.plot(l_x, l_lower, label='f_l')
-    pl.plot(l_x, l_upper, label='f_u')
-    pl.plot(l_x, l_lmax, label='f_lmax')
-    pl.plot(l_x, l_umax, label='f_umax')
+    plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_smoothed, label='smoothed_f')
+    plt.plot(l_x, l_lower, label='f_l')
+    plt.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_lmax, label='f_lmax')
+    plt.plot(l_x, l_umax, label='f_umax')
 
-    pl.legend()
+    plt.legend()
 
-    pl.show()
+    plt.show()
 
-# max_graph_exp(lambda x: abs(pl.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
+# max_graph_exp(lambda x: abs(np.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
 def norme_2(x):
     res = 0
     for el in x:
         res += el**2
-    return pl.sqrt(res)
+    return np.sqrt(res)
 
 
 def attack_set(x, epsilon, n_attack):
@@ -476,7 +477,7 @@ def attack_set(x, epsilon, n_attack):
     d = len(x)
     for i in range(n_attack):
         attack = [random()-0.5 for _ in range(d)]
-        attack = pl.array(attack)*epsilon/norme_2(attack)
+        attack = np.array(attack)*epsilon/norme_2(attack)
         l_attack.append(attack)
     return l_attack
 
@@ -505,7 +506,7 @@ def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
             res[3] += 1
         elif umax <= answer:
             res[4] += 1
-    return pl.array(res)/len(l_attack)
+    return np.array(res)/len(l_attack)
 
 # print(out_of_bound(NN_to_function(load_model()),
 #       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
@@ -521,7 +522,7 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
     upper = smoothed_f(x)[3]
     lmax = smoothed_f(x)[0]
     umax = smoothed_f(x)[4]
-    x_with_noise = x+pl.array(attack[0])
+    x_with_noise = x+np.array(attack[0])
     for _ in range(n_attack):
         answer = smoothed_f(x_with_noise)[2]
         if answer < lmax:
@@ -534,7 +535,7 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
             res[3] += 1
         elif umax <= answer:
             res[4] += 1
-    return pl.array(res)/n_attack
+    return np.array(res)/n_attack
 
 
 # print(out_of_bound_same_attack(NN_to_function(load_model()),
