@@ -3,9 +3,9 @@ mean
 commentaires
 cohérence des formalisme
 segmentation
-deux versions (draw_to_do)
-suite
 pylab
+
+sigma/epsilon
 '''
 
 

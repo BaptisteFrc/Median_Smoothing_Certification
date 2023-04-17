@@ -265,7 +265,7 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds(pl.sin, 1000, 0.1, 0.5, 0.99, 0.1)
+# graph_and_bounds(pl.sin, 100, 0.1, 0.5, 0.99, 0.1)
 
 
 def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
@@ -288,7 +288,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     pl.show()
 
 
-# graph_and_bounds_exp(pl.sin, 1000, 1, -1, 1, 0.99, 0.1)
+graph_and_bounds_exp(pl.sin, 100, 1, -1, 1, 0.99, 0.1)
 
 # test = NN_to_function(load_model())
 # test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
@@ -537,8 +537,8 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
     return pl.array(res)/n_attack
 
 
-print(out_of_bound_same_attack(NN_to_function(load_model()),
-      100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
+# print(out_of_bound_same_attack(NN_to_function(load_model()),
+#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
 
 
 def Rd_to_R(f, d):
