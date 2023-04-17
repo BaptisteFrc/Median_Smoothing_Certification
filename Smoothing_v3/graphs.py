@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt 
 import numpy as np
-from smoothing_median import *
+from smoothing import *
 from utils import *
 
 
