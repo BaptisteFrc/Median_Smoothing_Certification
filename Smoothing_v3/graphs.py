@@ -3,12 +3,13 @@ import matplotlib.pyplot as plt
 import sys
 from pprint import pprint
 
-pprint(sys.path)
+
 sys.path.insert(1, '../')
 pprint(sys.path)
 
 from regression_model import load_model, NN_to_function
 from adversarial_attacks.attack_FGSM import attack_1
+
 
 
 
