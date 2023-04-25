@@ -8,13 +8,6 @@ pylab
 sigma/epsilon
 '''
 
-
-from regression_model import load_model, NN_to_function
-from attack_FGSM import attack_1
-import scipy.stats
-import numpy as np
-import matplotlib.pyplot as plt
-from random import random
 from utils import *
 
 
