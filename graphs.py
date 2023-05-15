@@ -75,7 +75,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     plt.show()
 
 
-# graph_and_bounds_exp(np.sin, 100, 1, -1, 1, 0.99, 0.1)
+# graph_and_bounds_exp(np.sin, 10, 1, -1, 1, 0.99, 0.1)
 
 
 def max_graph(f, n, sigma, p, alpha, epsilon, precision):
@@ -102,7 +102,7 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     plt.show()
 
 
-# max_graph(lambda x: abs(np.sin(x)), 100, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(np.sin(x)), 10, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
@@ -131,8 +131,7 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 
 # max_graph_exp(lambda x: abs(np.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
-# max_graph(Rd_to_R(NN_to_function(load_model()), 4),
-#           3, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(Rd_to_R(NN_to_function(load_model()), 4), 3, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
