@@ -8,7 +8,7 @@ pylab
 sigma/epsilon
 '''
 
-from utils import *
+from Smoothing_v3.utils import *
 
 
 def smoothing(f, n, G, p):

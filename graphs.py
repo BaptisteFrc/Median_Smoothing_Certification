@@ -1,15 +1,9 @@
-from smoothing import *
+from Smoothing_v3.smoothing import *
 import matplotlib.pyplot as plt
 import sys
 from pprint import pprint
-
-
-sys.path.insert(1, '../')
-pprint(sys.path)
-
-from regression_model import load_model, NN_to_function
+from models_neural_network.regression_model import load_model, NN_to_function
 from adversarial_attacks.attack_FGSM import attack_1
-
 
 
 

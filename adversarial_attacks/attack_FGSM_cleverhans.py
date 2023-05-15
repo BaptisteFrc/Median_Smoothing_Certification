@@ -1,4 +1,4 @@
-from regression_model import load_model
+from models_neural_network.regression_model import load_model
 import torch
 import pandas as pd
 from torch import nn
