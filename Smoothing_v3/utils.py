@@ -9,7 +9,7 @@ def good_gaussian(sigma):
     """
     def inner(x):
         d = len(x)
-        return scipy.stats.multivariate_normal(0, sigma*np.identity(d)).rvs()
+        return scipy.stats.multivariate_normal(np.zeros(d), sigma).rvs()
     return inner
 
 

@@ -37,7 +37,7 @@ when the power plant was set to work with full load.
 Features consist of hourly average ambient variables Temperature (T), Ambient Pressure (AP), Relative Humidity (RH) and Exhaust Vacuum (V)
 to predict the net hourly electrical energy output (EP)  of the plant.
 '''
-df = pd.read_csv("data/sheet1.csv", delimiter=';')
+df = pd.read_csv("models_neural_network/data/sheet1.csv", delimiter=';')
 X = df[['AT', 'V', 'AP', 'RH']]
 y = df['PE']
 X_train, X_test, y_train, y_test = train_test_split(
@@ -139,7 +139,7 @@ def train():
 
 def NN_to_function(model):
     def inner(input):
-        model.load_state_dict(torch.load("regression.pt"))
+        model.load_state_dict(torch.load("models_neural_network/regression.pt"))
         model.eval()
         input = torch.DoubleTensor(input)
         y_pred = model(input)
@@ -149,9 +149,8 @@ def NN_to_function(model):
 
 def load_model():
     model = NeuralNetwork()
-    model.load_state_dict(torch.load("regression.pt"))
+    model.load_state_dict(torch.load("models_neural_network/regression.pt"))
     return model
-
 
 # train()
 # tes1 = [14.96, 41.76, 1024.07, 73.17]

@@ -1,7 +1,7 @@
 # slide: explication d'une attaque et de la FGSM
 # inspiré de https://pytorch.org/tutorials/beginner/fgsm_tutorial.html
 #  We construct the image adversary by calculating the gradients of the loss, computing the sign of the gradient, and then using the sign to build the image adversary
-from regression_model import load_model
+from models_neural_network.regression_model import load_model
 import torch
 from torch import nn
 from math import sqrt

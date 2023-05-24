@@ -8,14 +8,7 @@ pylab
 sigma/epsilon
 '''
 
-
-from regression_model import load_model, NN_to_function
-from adversarial_attacks.attack_FGSM import attack_1
-import scipy.stats
-import numpy as np
-import matplotlib.pyplot as plt
-from random import random
-from utils import *
+from Smoothing_v3.utils import *
 
 
 def smoothing(f, n, G, p):

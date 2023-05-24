@@ -1,7 +1,10 @@
-import matplotlib.pyplot as plt 
-import numpy as np
-from smoothing import *
-from utils import *
+from Smoothing_v3.smoothing import *
+import matplotlib.pyplot as plt
+import sys
+from pprint import pprint
+from models_neural_network.regression_model import load_model, NN_to_function
+from adversarial_attacks.attack_FGSM import attack_1
+
 
 
 def graph_diff(f, n, G, p):
@@ -27,7 +30,8 @@ def graph_diff(f, n, G, p):
     plt.show()
 
 
-# graph_diff(lambda x: abs(pl.sin(x)), 300, good_gaussian(0.1), 0.5)
+# graph_diff(lambda x: abs(np.sin(x)), 10, good_gaussian(0.1), 0.5)
+
 
 def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
@@ -71,13 +75,13 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
     plt.show()
 
 
-graph_and_bounds_exp(np.sin, 100, 1, -1, 1, 0.99, 0.1)
+# graph_and_bounds_exp(np.sin, 10, 1, -1, 1, 0.99, 0.1)
 
 
 def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = np.linspace(2, 5, 2)
+    l_x = np.linspace(2, 5, 50)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -98,7 +102,8 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
     plt.show()
 
 
-# max_graph(lambda x: abs(np.sin(x)), 1000, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(np.sin(x)), 10, 1, 0.5, 0.99, 0.1, 0.001)
+
 
 def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -123,10 +128,10 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 
     plt.show()
 
+
 # max_graph_exp(lambda x: abs(np.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
-# max_graph(Rd_to_R(NN_to_function(load_model()), 4),
-#           3, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(Rd_to_R(NN_to_function(load_model()), 4), 3, 1, 0.5, 0.99, 0.1, 0.001)
 
 
 def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
@@ -184,6 +189,7 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
             res[4] += 1
     return np.array(res)/n_attack
 
+
 """Tests"""
 
 # test = NN_to_function(load_model())
@@ -193,5 +199,3 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
 
 # print(out_of_bound_same_attack(NN_to_function(load_model()),
 #       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
-
-
