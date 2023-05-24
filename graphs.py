@@ -7,7 +7,7 @@ from adversarial_attacks.attack_FGSM import attack_1
 
 
 
-def graph_diff(f, n, G, p):
+def graph_diff(f : function, n : int, G : function, p : float):
     """
     only works for d=1
     """
@@ -33,7 +33,7 @@ def graph_diff(f, n, G, p):
 # graph_diff(lambda x: abs(np.sin(x)), 10, good_gaussian(0.1), 0.5)
 
 
-def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
+def graph_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
     l_x = np.linspace(2, 5, 1000)
@@ -55,7 +55,7 @@ def graph_and_bounds(f, n, sigma, p, alpha, epsilon):
 
 # graph_and_bounds(np.sin, 100, 0.1, 0.5, 0.99, 0.1)
 
-def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
+def graph_and_bounds_exp(f : function, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
 
     l_x = np.linspace(-10, 10, 1000)
@@ -78,7 +78,7 @@ def graph_and_bounds_exp(f, n, sigma, l, u, alpha, epsilon):
 # graph_and_bounds_exp(np.sin, 10, 1, -1, 1, 0.99, 0.1)
 
 
-def max_graph(f, n, sigma, p, alpha, epsilon, precision):
+def max_graph(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
     l_x = np.linspace(2, 5, 50)
@@ -105,7 +105,7 @@ def max_graph(f, n, sigma, p, alpha, epsilon, precision):
 # max_graph(lambda x: abs(np.sin(x)), 10, 1, 0.5, 0.99, 0.1, 0.001)
 
 
-def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
+def max_graph_exp(f : function, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
 
     l_x = np.linspace(2, 5, 2)
@@ -134,7 +134,7 @@ def max_graph_exp(f, n, sigma, l, u, alpha, epsilon):
 # max_graph(Rd_to_R(NN_to_function(load_model()), 4), 3, 1, 0.5, 0.99, 0.1, 0.001)
 
 
-def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
+def out_of_bound(f : function, n : int, sigma : float, x : Vector, p : float, alpha : float, epsilon : float, precision : float, n_attack : list):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
@@ -164,7 +164,7 @@ def out_of_bound(f, n, sigma, x, p, alpha, epsilon, precision, n_attack):
 #       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
 
 
-def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_attack, attack):
+def out_of_bound_same_attack(f : function, n : int, sigma : float, x : Vector, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
@@ -198,4 +198,4 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
 # print(out_of_bound_same_attack(NN_to_function(load_model()),
-#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
+    #   100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))

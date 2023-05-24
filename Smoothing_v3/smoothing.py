@@ -9,7 +9,7 @@ sigma/epsilon
 '''
 
 from Smoothing_v3.utils import *
-# import typing
+
 
 
 def smoothing(f : function, n : int, G : function, p : float):
