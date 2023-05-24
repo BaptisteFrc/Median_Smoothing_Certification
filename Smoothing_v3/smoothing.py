@@ -9,9 +9,10 @@ sigma/epsilon
 '''
 
 from Smoothing_v3.utils import *
+# import typing
 
 
-def smoothing(f, n, G, p):
+def smoothing(f : function, n : int, G : function, p : float):
     """Returns the smoothed function of the function in input f, using the quantil method.
 
     Args:
@@ -47,7 +48,7 @@ def smoothing(f, n, G, p):
     return smoothed_f
 
 
-def smoothing_exp(f, n, G):
+def smoothing_exp(f : function, n : int, G : function):
     """Returns the smoothed function of the function in input f, using the mean method.
 
     Args:
@@ -72,7 +73,7 @@ def smoothing_exp(f, n, G):
     return smoothed_f
 
 
-def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
+def smoothing_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     """
     Args:
         f (function): from Rd to R
@@ -104,7 +105,7 @@ def smoothing_and_bounds(f, n, sigma, p, alpha, epsilon):
     return f_smoothed
 
 
-def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
+def smoothing_and_bounds_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float):
     """
     To have the bounds of the paper, we need f to be normalized, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
@@ -144,7 +145,7 @@ def smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha):
     return f_smoothed
 
 
-def max_bound(f, n, sigma, p, alpha, epsilon, precision):
+def max_bound(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float):
     """This time we bound the theoritical function but also the practical and computational smoothed_f.
 
     Args:
@@ -180,7 +181,7 @@ def max_bound(f, n, sigma, p, alpha, epsilon, precision):
     return f_smoothed
 
 
-def max_bound_exp(f, n, sigma, l, u, epsilon, alpha):
+def max_bound_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float):
     """
     Same for the mean method.
 
