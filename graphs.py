@@ -254,7 +254,7 @@ def sensitivity(f, E, fmax, fmin) :
 def robustness(f, E, fmax, fmin) :
     return 1/sensitivity(f, E, fmax, fmin)
 
-print(robustness(smoothing(lambda x: abs(np.sin(x[0])), 1, good_gaussian(1), 0.5), [[2,5]], 1, 0))
+print(robustness(smoothing(lambda x: abs(np.sin(x[0])), 10, good_gaussian(1), 0.5), [[2,5]], 1, 0))
 
 ##v2
 
