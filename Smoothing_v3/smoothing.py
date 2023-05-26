@@ -12,7 +12,7 @@ from Smoothing_v3.utils import *
 
 
 
-def smoothing(f : function, n : int, G : function, p : float):
+def smoothing(f : function, n : int, G : function, p : float) ->function:
     """Returns the smoothed function of the function in input f, using the quantil method.
 
     Args:
@@ -25,7 +25,7 @@ def smoothing(f : function, n : int, G : function, p : float):
         function: f_smoothed
     """
 
-    qp = q_p(p, n)
+    qp = q_p(n, p)
 
     """
     supprimer si v3
@@ -34,7 +34,7 @@ def smoothing(f : function, n : int, G : function, p : float):
     This is also the case for every function below.
     """
 
-    def smoothed_f(x):
+    def smoothed_f(x : list):
 
         sample = []
 
@@ -48,7 +48,7 @@ def smoothing(f : function, n : int, G : function, p : float):
     return smoothed_f
 
 
-def smoothing_exp(f : function, n : int, G : function):
+def smoothing_exp(f : function, n : int, G : function) ->function:
     """Returns the smoothed function of the function in input f, using the mean method.
 
     Args:
@@ -60,7 +60,7 @@ def smoothing_exp(f : function, n : int, G : function):
         function: smoothed version of f
     """
 
-    def smoothed_f(x):
+    def smoothed_f(x : list):
 
         sample = []
 
@@ -73,7 +73,7 @@ def smoothing_exp(f : function, n : int, G : function):
     return smoothed_f
 
 
-def smoothing_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float):
+def smoothing_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float) ->function:
     """
     Args:
         f (function): from Rd to R
@@ -88,11 +88,11 @@ def smoothing_and_bounds(f : function, n : int, sigma : float, p : float, alpha 
     """
 
     G = good_gaussian(sigma)
-    ql = q_lower(p, n, alpha, epsilon, sigma)
-    qp = q_p(p, n)
-    qu = q_upper(p, n, alpha, epsilon, sigma)
+    ql = q_lower(n, p, alpha, epsilon, sigma)
+    qp = q_p(n, p)
+    qu = q_upper(n, p, alpha, epsilon, sigma)
 
-    def f_smoothed(x):
+    def f_smoothed(x : list):
 
         sample = []
         for _ in range(n):
@@ -105,7 +105,7 @@ def smoothing_and_bounds(f : function, n : int, sigma : float, p : float, alpha 
     return f_smoothed
 
 
-def smoothing_and_bounds_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float):
+def smoothing_and_bounds_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float) ->function:
     """
     To have the bounds of the paper, we need f to be normalized, and thus it should be bounded in [u, l].
     The formula only works with a centered Gaussian, so there is no need for G, only sigma.
@@ -131,7 +131,7 @@ def smoothing_and_bounds_exp(f : function, n : int, sigma : float, l : float, u 
     G = good_gaussian(sigma)
     security = (u-l)/(2*np.sqrt(n*(1-alpha)))
 
-    def f_smoothed(x):
+    def f_smoothed(x : list):
 
         sample = []
         for _ in range(n):
@@ -145,7 +145,7 @@ def smoothing_and_bounds_exp(f : function, n : int, sigma : float, l : float, u 
     return f_smoothed
 
 
-def max_bound(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float):
+def max_bound(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float) ->function:
     """This time we bound the theoritical function but also the practical and computational smoothed_f.
 
     Args:
@@ -162,13 +162,13 @@ def max_bound(f : function, n : int, sigma : float, p : float, alpha : float, ep
     """
 
     G = good_gaussian(sigma)
-    ql = q_lower(p, n, alpha, epsilon, sigma)
-    qp = q_p(p, n)
-    qu = q_upper(p, n, alpha, epsilon, sigma)
-    qlmax = q_lower(p_minus(n, p, alpha, precision), n, alpha, epsilon, sigma)
-    qumax = q_upper(p_plus(n, p, alpha, precision), n, alpha, epsilon, sigma)
+    ql = q_lower(n, p, alpha, epsilon, sigma)
+    qp = q_p(n, p)
+    qu = q_upper(n, p, alpha, epsilon, sigma)
+    qlmax = q_lower(n, p_minus(n, p, alpha, precision), alpha, epsilon, sigma)
+    qumax = q_upper(n, p_plus(n, p, alpha, precision), alpha, epsilon, sigma)
 
-    def f_smoothed(x):
+    def f_smoothed(x : list):
 
         sample = []
         for _ in range(n):
@@ -181,7 +181,7 @@ def max_bound(f : function, n : int, sigma : float, p : float, alpha : float, ep
     return f_smoothed
 
 
-def max_bound_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float):
+def max_bound_exp(f : function, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float) ->function:
     """
     Same for the mean method.
 
@@ -202,7 +202,7 @@ def max_bound_exp(f : function, n : int, sigma : float, l : float, u : float, ep
     G = good_gaussian(sigma)
     security = (u-l)/(2*np.sqrt(n*(1-alpha)))
 
-    def f_smoothed(x):
+    def f_smoothed(x : list):
 
         sample = []
         for _ in range(n):

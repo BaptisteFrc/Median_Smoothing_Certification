@@ -7,7 +7,7 @@ from adversarial_attacks.attack_FGSM import attack_1
 
 
 
-def graph_diff(f : function, n : int, G : function, p : float):
+def graph_diff(f : function, n : int, G : function, p : float) ->None:
     """
     only works for d=1
     """
@@ -33,7 +33,7 @@ def graph_diff(f : function, n : int, G : function, p : float):
 # graph_diff(lambda x: abs(np.sin(x)), 10, good_gaussian(0.1), 0.5)
 
 
-def graph_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float):
+def graph_and_bounds(f : function, n : int, sigma : float, p : float, alpha : float, epsilon : float) ->None:
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
     l_x = np.linspace(2, 5, 1000)
@@ -134,7 +134,7 @@ def max_graph_exp(f : function, n : int, sigma : float, l : float, u : float, al
 # max_graph(Rd_to_R(NN_to_function(load_model()), 4), 3, 1, 0.5, 0.99, 0.1, 0.001)
 
 
-def out_of_bound(f : function, n : int, sigma : float, x : Vector, p : float, alpha : float, epsilon : float, precision : float, n_attack : list):
+def out_of_bound(f : function, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
@@ -164,7 +164,7 @@ def out_of_bound(f : function, n : int, sigma : float, x : Vector, p : float, al
 #       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
 
 
-def out_of_bound_same_attack(f : function, n : int, sigma : float, x : Vector, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
+def out_of_bound_same_attack(f : function, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
