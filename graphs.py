@@ -200,6 +200,29 @@ def out_of_bound_same_attack(f, n, sigma, x, p, alpha, epsilon, precision, n_att
 # print(out_of_bound_same_attack(NN_to_function(load_model()),
 #       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 ##suite
 
 from scipy.integrate import nquad
@@ -222,12 +245,6 @@ def sensitivity_at_x(f, x, E, F, fmax, fmin) :
         return abs(f(x)-f(y))/norm_2(array(u(x, E))-array(u(y, E)))
     return nquad(inner, F, opts={'points' : x, 'limit' : 10, 'epsabs' : -np.inf, 'epsrel' : 1e-3}, full_output=True)[0]/mesure(F)/(fmax-fmin)
 
-# start=time.time()
-
-# print(sensitivity_at_x(lambda x: x[0], [20, 50, 1020, 50], [[0,35], [30,100], [1000,1030], [30,100]], [[0,35], [30,100], [1000,1030], [30,100]] , 500, 420))
-
-# print(time.time() - start)
-
 def sensitivity(f, E, fmax, fmin) :
     def inner(*args) :
         x=[xi for xi in args]
@@ -236,50 +253,54 @@ def sensitivity(f, E, fmax, fmin) :
 
 def robustness(f, E, fmax, fmin) :
     return 1/sensitivity(f, E, fmax, fmin)
+
+print(robustness(smoothing(lambda x: abs(np.sin(x[0])), 1, good_gaussian(1), 0.5), [[2,5]], 1, 0))
 
 ##v2
 
-def u(x, E) :
-    res=[]
-    for i in range(len(x)) :
-        res.append((x[i]-E[i][0])/(E[i][1]-E[i][0]))
-    return res
+# def u(x, E) :
+#     res=[]
+#     for i in range(len(x)) :
+#         res.append((x[i]-E[i][0])/(E[i][1]-E[i][0]))
+#     return res
 
-def mesure(F) :
-    return nquad(lambda *args : 1, F)[0]
+# def mesure(F) :
+#     return nquad(lambda *args : 1, F)[0]
 
-def sensitivity_at_x(f, x, E, F, fmax, fmin) :
-    def inner(*args) :
-        y=[yi for yi in args]
-        return abs(f(x)-f(y))/norm_2(array(u(x, E))-array(u(y, E)))
-    return nquad(inner, F, opts={'points' : x, 'limit' : 10, 'epsabs' : -np.inf, 'epsrel' : 1e-3}, full_output=True)[0]/mesure(F)/(fmax-fmin)
+# def sensitivity_at_x(f, x, E, F, fmax, fmin) :
+#     def inner(*args) :
+#         y=[yi for yi in args]
+#         return abs(f(x)-f(y))/norm_2(array(u(x, E))-array(u(y, E)))
+#     return nquad(inner, F, opts={'points' : x, 'limit' : 10, 'epsabs' : -np.inf, 'epsrel' : 1e-3}, full_output=True)[0]/mesure(F)/(fmax-fmin)
 
-# start=time.time()
+# # start=time.time()
 
-# print(sensitivity_at_x(lambda x: x[0], [20, 50, 1020, 50], [[0,35], [30,100], [1000,1030], [30,100]], [[0,35], [30,100], [1000,1030], [30,100]] , 500, 420))
+# # print(sensitivity_at_x(lambda x: x[0], [20, 50, 1020, 50], [[0,35], [30,100], [1000,1030], [30,100]], [[0,35], [30,100], [1000,1030], [30,100]] , 500, 420))
 
-# print(time.time() - start)
+# # print(time.time() - start)
 
-def sensitivity(f, E, fmax, fmin) :
-    def inner(*args) :
-        x=[xi for xi in args]
-        return log(sensitivity_at_x(f, x, E, E, fmax, fmin))                            
-    return exp(nquad(inner, E, opts={'limit' : 50})[0]/mesure(E))
+# def sensitivity(f, E, fmax, fmin) :
+#     def inner(*args) :
+#         x=[xi for xi in args]
+#         return log(sensitivity_at_x(f, x, E, E, fmax, fmin))                            
+#     return exp(nquad(inner, E, opts={'limit' : 50})[0]/mesure(E))
 
-def robustness(f, E, fmax, fmin) :
-    return 1/sensitivity(f, E, fmax, fmin)
+# def robustness(f, E, fmax, fmin) :
+#     return 1/sensitivity(f, E, fmax, fmin)
 
 ##impact sigma
 
-def compare_sigma(f, sigma1, sigma2, E, fmax, fmin, n, G, p) :
+def compare_sigma(f, sigma1, sigma2, E, fmax, fmin, n, p) :
     return robustness(f, E, fmax, fmin), robustness(smoothing(f, n, good_gaussian(sigma1), p), E, fmax, fmin), robustness(smoothing(f, n, good_gaussian(sigma2), p), E, fmax, fmin)
+
+# print(compare_sigma(lambda x: abs(np.sin(x[0])), 0.1, 1, [[2,5]], 1, 0, 10, 0.5))
 
 ##graph en plus
 
 def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = range(5)
+    l_x = range(10)
 
     l_f = [f([x]) for x in X]
     l_smoothed = [smoothed_f([x])[2] for x in X]
@@ -288,13 +309,15 @@ def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
     l_lmax = [smoothed_f([x])[0] for x in X]
     l_umax = [smoothed_f([x])[4] for x in X]
 
-    plt.plot(l_x, l_f, label='f')
+    # plt.plot(l_x, l_f, label='f')
     plt.plot(l_x, l_smoothed, label='smoothed_f')
     plt.plot(l_x, l_lower, label='f_l')
     plt.plot(l_x, l_upper, label='f_u')
-    plt.plot(l_x, l_lmax, label='f_lmax')
-    plt.plot(l_x, l_umax, label='f_umax')
+    # plt.plot(l_x, l_lmax, label='f_lmax')
+    # plt.plot(l_x, l_umax, label='f_umax')
 
     plt.legend()
 
     plt.show()
+
+# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
