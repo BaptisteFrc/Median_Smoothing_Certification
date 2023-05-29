@@ -230,70 +230,41 @@ from Smoothing_v3.utils import norm_2
 from numpy import array, exp, log
 import time
 
-def u(x, E) :
-    res=[]
-    for i in range(len(x)) :
-        res.append((x[i]-E[i][0])/(E[i][1]-E[i][0]))
-    return res
+def sensitivity_at_x(f, x, G_attack, N) :
+    res=0
+    for _ in range(N) :
+        attack=G_attack(x)
+        res+=abs(f(x+attack)-f(x))/norm_2(attack)
+    return res/N
 
-def mesure(F) :
-    return nquad(lambda *args : 1, F)[0]
+# print(sensitivity_at_x(lambda x: x[0], [0], good_gaussian(1), 100))
 
-def sensitivity_at_x(f, x, E, F, fmax, fmin) :
-    def inner(*args) :
-        y=[yi for yi in args]
-        return abs(f(x)-f(y))/norm_2(array(u(x, E))-array(u(y, E)))
-    return nquad(inner, F, opts={'points' : x, 'limit' : 10, 'epsabs' : -np.inf, 'epsrel' : 1e-3}, full_output=True)[0]/mesure(F)/(fmax-fmin)
+def sensitivity_at_x_rel(f, x, G_attack, N, fmax, fmin) :
+    return sensitivity_at_x(f, x, G_attack, N)/(fmax-fmin)
 
-def sensitivity(f, E, fmax, fmin) :
-    def inner(*args) :
-        x=[xi for xi in args]
-        return log(sensitivity_at_x(f, x, E, E, fmax, fmin))                            
-    return exp(nquad(inner, E, opts={'limit' : 50})[0]/mesure(E))
+def sensitivity(f, N, G_attack, M, G_entree, x_moyen) :
+    res=0
+    for _ in range (M) :
+        res+=sensitivity_at_x(f, x_moyen+G_entree(x_moyen), G_attack, N)
+    return res/M
 
-def robustness(f, E, fmax, fmin) :
-    return 1/sensitivity(f, E, fmax, fmin)
+def sensitivity_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
+    return sensitivity(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
 
-print(robustness(smoothing(lambda x: abs(np.sin(x[0])), 10, good_gaussian(1), 0.5), [[2,5]], 1, 0))
+def robustness(f, N, G_attack, M, G_entree, x_moyen) :
+    return 1/sensitivity(f, N, G_attack, M, G_entree, x_moyen)
 
-##v2
+# print(robustness(lambda x: x[0]+x[1]**2, 1000, good_gaussian(1), 1000, good_gaussian(10), [0,0]))
 
-# def u(x, E) :
-#     res=[]
-#     for i in range(len(x)) :
-#         res.append((x[i]-E[i][0])/(E[i][1]-E[i][0]))
-#     return res
-
-# def mesure(F) :
-#     return nquad(lambda *args : 1, F)[0]
-
-# def sensitivity_at_x(f, x, E, F, fmax, fmin) :
-#     def inner(*args) :
-#         y=[yi for yi in args]
-#         return abs(f(x)-f(y))/norm_2(array(u(x, E))-array(u(y, E)))
-#     return nquad(inner, F, opts={'points' : x, 'limit' : 10, 'epsabs' : -np.inf, 'epsrel' : 1e-3}, full_output=True)[0]/mesure(F)/(fmax-fmin)
-
-# # start=time.time()
-
-# # print(sensitivity_at_x(lambda x: x[0], [20, 50, 1020, 50], [[0,35], [30,100], [1000,1030], [30,100]], [[0,35], [30,100], [1000,1030], [30,100]] , 500, 420))
-
-# # print(time.time() - start)
-
-# def sensitivity(f, E, fmax, fmin) :
-#     def inner(*args) :
-#         x=[xi for xi in args]
-#         return log(sensitivity_at_x(f, x, E, E, fmax, fmin))                            
-#     return exp(nquad(inner, E, opts={'limit' : 50})[0]/mesure(E))
-
-# def robustness(f, E, fmax, fmin) :
-#     return 1/sensitivity(f, E, fmax, fmin)
+def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
+    return robustness(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
 
 ##impact sigma
 
-def compare_sigma(f, sigma1, sigma2, E, fmax, fmin, n, p) :
-    return robustness(f, E, fmax, fmin), robustness(smoothing(f, n, good_gaussian(sigma1), p), E, fmax, fmin), robustness(smoothing(f, n, good_gaussian(sigma2), p), E, fmax, fmin)
+def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
+    return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
-# print(compare_sigma(lambda x: abs(np.sin(x[0])), 0.1, 1, [[2,5]], 1, 0, 10, 0.5))
+print(compare_sigma(lambda x: x[0]+x[1]**2, 100, 1, 10, 0.5, 100, good_gaussian(1), 100, good_gaussian(10), [0,0]))
 
 ##graph en plus
 

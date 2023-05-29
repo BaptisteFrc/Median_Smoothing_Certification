@@ -95,7 +95,9 @@ def attack_set(x, epsilon, n_attack):
 
 def norm_2(x):
     res = 0
-    for el in x:
+    if type(x)==np.float64 :
+        return abs(x)
+    for el in x :
         res += el**2
     return np.sqrt(res)
 
