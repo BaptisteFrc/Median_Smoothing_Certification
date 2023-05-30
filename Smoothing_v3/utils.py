@@ -102,7 +102,7 @@ def norm_2(x : list):
     return np.sqrt(res)
 
 
-def Rd_to_R(f : function, d : int):
+def Rd_to_R(f : callable, d : int):
     def inner(x):
         return f(list(x)*d)
     return inner
