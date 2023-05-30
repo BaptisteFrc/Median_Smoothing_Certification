@@ -197,9 +197,7 @@ def out_of_bound_same_attack(f : function, n : int, sigma : float, x : list, p :
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
-# print(out_of_bound_same_attack(NN_to_function(load_model()),
-<<<<<<< HEAD
-#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
+# print(out_of_bound_same_attack(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
 
 
 
@@ -292,7 +290,4 @@ def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
-# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
-=======
-    #   100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
->>>>>>> 2bdc24022909e68c38ca90256f646377be74d1d7
+# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
