@@ -106,3 +106,13 @@ def Rd_to_R(f : callable, d : int):
     def inner(x):
         return f(list(x)*d)
     return inner
+
+def very_good_gaussian(*args):
+    """
+    Ensures that the Gaussian is well-valued in Rd.
+    """
+    def inner(x):
+        d = len(x)
+        sigma=np.diag(args)
+        return scipy.stats.multivariate_normal(np.zeros(d), sigma).rvs()
+    return inner

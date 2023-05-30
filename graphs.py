@@ -1,4 +1,6 @@
-from Smoothing_v3.smoothing import *
+#quelques erreurs de placements des variables encore
+
+from smoothing.smoothing import *
 import matplotlib.pyplot as plt
 import sys
 from pprint import pprint
@@ -7,7 +9,7 @@ from adversarial_attacks.attack_FGSM import attack_1
 
 
 
-def graph_diff(f : callable, n : int, G : callable, p : float) ->None:
+def graph_diff(f : callable, n : int, G : callable, p : float):
     """
     only works for d=1
     """
@@ -33,7 +35,7 @@ def graph_diff(f : callable, n : int, G : callable, p : float) ->None:
 # graph_diff(lambda x: abs(np.sin(x)), 10, good_gaussian(0.1), 0.5)
 
 
-def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float) ->None:
+def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
     l_x = np.linspace(2, 5, 1000)
@@ -214,9 +216,6 @@ def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p :
 
 ##suite
 
-from scipy.integrate import nquad
-from Smoothing_v3.utils import norm_2
-from numpy import array, exp, log
 import time
 
 def sensitivity_at_x(f, x, G_attack, N) :
@@ -234,8 +233,8 @@ def sensitivity_at_x_rel(f, x, G_attack, N, fmax, fmin) :
 def sensitivity(f, N, G_attack, M, G_entree, x_moyen) :
     res=0
     for _ in range (M) :
-        res+=sensitivity_at_x(f, x_moyen+G_entree(x_moyen), G_attack, N)
-    return res/M
+        res+=np.log(sensitivity_at_x(f, x_moyen+G_entree(x_moyen), G_attack, N))
+    return np.exp(res/M)
 
 def sensitivity_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
     return sensitivity(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
@@ -265,10 +264,10 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
 
 ##graph en plus
 
-def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
+def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = range(10)
+    l_x = range(len(X))
 
     l_f = [f([x]) for x in X]
     l_smoothed = [smoothed_f([x])[2] for x in X]
@@ -277,7 +276,7 @@ def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
     l_lmax = [smoothed_f([x])[0] for x in X]
     l_umax = [smoothed_f([x])[4] for x in X]
 
-    # plt.plot(l_x, l_f, label='f')
+    plt.plot(l_x, l_f, label='f')
     plt.plot(l_x, l_smoothed, label='smoothed_f')
     plt.plot(l_x, l_lower, label='f_l')
     plt.plot(l_x, l_upper, label='f_u')
@@ -288,4 +287,26 @@ def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
-# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
+# graph_precision(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
+
+
+def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
+    f_p = max_bound(f, n, sigma, p, alpha, epsilon, precision)
+    f_exp = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
+    l_x = range(len(X))
+
+    l_p_1 = [f_p([x])[3]-f_p([x])[1] for x in X]
+    l_p_2 = [f_p([x])[4]-f_p([x])[0] for x in X]
+    l_exp_1=[f_exp([x])[3]-f_exp([x])[1] for x in X]
+    l_exp_2=[f_exp([x])[4]-f_exp([x])[0] for x in X]
+
+    # plt.plot(l_x, l_p_1, label='small bounds p')
+    # plt.plot(l_x, l_p_2, label='big bounds p')
+    plt.plot(l_x, l_exp_1, label='small bounds exp')
+    # plt.plot(l_x, l_exp_2, label='big bounds exp')
+
+    plt.legend()
+
+    plt.show()
+
+# compare_p_and_exp(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, 430, 470, [[20, 50, 1020, 50]]*10)

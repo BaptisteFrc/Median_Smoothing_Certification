@@ -8,7 +8,7 @@ pylab
 sigma/epsilon
 '''
 
-from Smoothing_v3.utils import *
+from smoothing.utils import *
 
 
 
