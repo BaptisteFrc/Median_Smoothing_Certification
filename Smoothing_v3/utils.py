@@ -1,6 +1,7 @@
 import scipy.stats
 import numpy as np
 from random import random
+from types import FunctionType
 
 
 def good_gaussian(sigma : float):
@@ -100,7 +101,7 @@ def norm_2(x : list):
     return np.sqrt(res)
 
 
-def Rd_to_R(f : function, d : int):
+def Rd_to_R(f : FunctionType, d : int):
     def inner(x):
         return f(list(x)*d)
     return inner
