@@ -52,7 +52,7 @@ def smoothing_exp(f : function, n : int, G : function) ->function:
     """Returns the smoothed function of the function in input f, using the mean method.
 
     Args:
-        f (function)): from Rd to R
+        f (function): from Rd to R
         n (int): number of iterations for the random draw of the noise
         G (function): random variable of the noise (e.g. standard normal distribution)
 

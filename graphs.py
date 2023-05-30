@@ -158,10 +158,9 @@ def out_of_bound(f : function, n : int, sigma : float, x : list, p : float, alph
             res[3] += 1
         elif umax <= answer:
             res[4] += 1
-    return np.array(res)/len(l_attack)
+    print(np.array(res)/len(l_attack))
 
-# print(out_of_bound(NN_to_function(load_model()),
-#       100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100))
+# out_of_bound(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100)
 
 
 def out_of_bound_same_attack(f : function, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
@@ -187,7 +186,7 @@ def out_of_bound_same_attack(f : function, n : int, sigma : float, x : list, p :
             res[3] += 1
         elif umax <= answer:
             res[4] += 1
-    return np.array(res)/n_attack
+    print(np.array(res)/n_attack)
 
 
 """Tests"""
@@ -197,16 +196,7 @@ def out_of_bound_same_attack(f : function, n : int, sigma : float, x : list, p :
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
-# print(out_of_bound_same_attack(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
-
-
-
-
-
-
-
-
-
+# out_of_bound_same_attack(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1))
 
 
 
@@ -253,17 +243,25 @@ def sensitivity_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
 def robustness(f, N, G_attack, M, G_entree, x_moyen) :
     return 1/sensitivity(f, N, G_attack, M, G_entree, x_moyen)
 
+def approx_robustness(f, x_moyen, G_attack, N) :
+    return 1/sensitivity_at_x(f, x_moyen, G_attack, N)
+
 # print(robustness(lambda x: x[0]+x[1]**2, 1000, good_gaussian(1), 1000, good_gaussian(10), [0,0]))
 
 def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
+
+##compare robustesse
+
+def compare_robustesse(f, N, G_attack, M, G_entree, x_moyen) :
+    print(robustness(f, N, G_attack, M, G_entree, x_moyen), approx_robustness(f, x_moyen, G_attack, N))
 
 ##impact sigma
 
 def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
-print(compare_sigma(lambda x: x[0]+x[1]**2, 100, 1, 10, 0.5, 100, good_gaussian(1), 100, good_gaussian(10), [0,0]))
+# print(compare_sigma(lambda x: x[0]+x[1]**2, 100, 1, 10, 0.5, 100, good_gaussian(1), 100, good_gaussian(10), [0,0]))
 
 ##graph en plus
 
@@ -290,4 +288,4 @@ def graph_en_plus(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
-# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1)))
+# graph_en_plus(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
