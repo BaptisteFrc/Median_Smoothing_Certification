@@ -4,11 +4,13 @@ import torch.optim as optim
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
 from sklearn.model_selection import train_test_split
 from torch.utils.data import TensorDataset, DataLoader
 import tqdm
 import os
+
+# set up device
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 
 class Model(nn.Module):
@@ -42,8 +44,7 @@ def NN_to_function_v2(model):
         input = torch.FloatTensor(input).reshape(-1, 1).unsqueeze(0)
         pred = model(input)
         predicted_value = pred[0, -1].item()
-        predicted_value = scaler.inverse_transform([[predicted_value]])
-        return predicted_value[0][0]
+        return predicted_value
     return inner
 
 
@@ -57,8 +58,6 @@ test = NN_to_function_v2(load_model_v2())
 print(test([0 for i in range(24)]))
 
 if __name__ == "__main__":
-    # set up device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # import data
     data = pd.read_csv('data/household_power_consumption.txt', sep=';', parse_dates={'datetime': [
@@ -94,8 +93,8 @@ if __name__ == "__main__":
         data = data['Global_active_power'].values.reshape(-1, 1)
 
         # Normalize the 'Global_active_power' data with MinMaxScaler
-        scaler = MinMaxScaler(feature_range=(-1, 1))
-        data = scaler.fit_transform(data)
+        # scaler = MinMaxScaler(feature_range=(-1, 1))
+        # data = scaler.fit_transform(data)
 
         # pass output_seq_len here
         x, y = create_sequences(data, sequence_length, output_seq_len)
@@ -113,7 +112,7 @@ if __name__ == "__main__":
         test_loader = DataLoader(
             test_data, shuffle=True, batch_size=batch_size)
 
-        return train_loader, test_loader, scaler
+        return train_loader, test_loader
 
     def train_model(model, train_loader, test_loader, num_epochs, learning_rate, patience=10):
         """Train the model and print the loss for each epoch
@@ -210,12 +209,13 @@ if __name__ == "__main__":
     model = model.to(device)
 
     # Set the number of training epochs and learning rate
-    num_epochs = 100
+    num_epochs = 20
     learning_rate = 0.001
 
     # Process data
-    train_loader, test_loader, scaler = preprocess_data(
+    train_loader, test_loader = preprocess_data(
         data, input_seq_len, output, batch_size=64)
 
     # Train the model
-    # model = train_model(model, train_loader, test_loader, num_epochs, learning_rate))
+    model = train_model(model, train_loader, test_loader,
+                        num_epochs, learning_rate)
