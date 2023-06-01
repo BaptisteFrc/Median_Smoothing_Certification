@@ -60,13 +60,13 @@ print(test([0 for i in range(24)]))
 if __name__ == "__main__":
 
     # import data
-    data = pd.read_csv('data/household_power_consumption.txt', sep=';', parse_dates={'datetime': [
-        'Date', 'Time']}, infer_datetime_format=True, index_col='datetime', na_values=['?'])
-    data = data.dropna().reset_index()
-    data = data.set_index(pd.DatetimeIndex(
-        data['datetime'])).drop('datetime', axis=1)
-    data = data.resample('1h').fillna(method='bfill')[
-        'Global_active_power'].reset_index(name='Global_active_power')
+    # data = pd.read_csv('data/household_power_consumption.txt', sep=';', parse_dates={'datetime': [
+    #     'Date', 'Time']}, infer_datetime_format=True, index_col='datetime', na_values=['?'])
+    # data = data.dropna().reset_index()
+    # data = data.set_index(pd.DatetimeIndex(
+    #     data['datetime'])).drop('datetime', axis=1)
+    # data = data.resample('1h').fillna(method='bfill')[
+    #     'Global_active_power'].reset_index(name='Global_active_power')
     # data.min : 0.078
     # data.max : 8.758
 
@@ -217,5 +217,5 @@ if __name__ == "__main__":
         data, input_seq_len, output, batch_size=64)
 
     # Train the model
-    model = train_model(model, train_loader, test_loader,
+    # model = train_model(model, train_loader, test_loader,
                         num_epochs, learning_rate)
