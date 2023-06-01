@@ -1,13 +1,10 @@
 #quelques erreurs de placements des variables encore
 
-from smoothing.smoothing import *
 import matplotlib.pyplot as plt
-import sys
-from pprint import pprint
+from smoothing.smoothing import *
 from models_neural_network.regression_model import load_model, NN_to_function
-from adversarial_attacks.attack_FGSM import attack_1
 from models_neural_network.regression_model_v2 import load_model_v2, NN_to_function_v2
-
+from adversarial_attacks.attack_FGSM import attack_1
 
 
 def graph_diff(f : callable, n : int, G : callable, p : float):
@@ -57,6 +54,7 @@ def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : fl
 
 
 # graph_and_bounds(np.sin, 100, 0.1, 0.5, 0.99, 0.1)
+
 
 def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -162,6 +160,7 @@ def out_of_bound(f : callable, n : int, sigma : float, x : list, p : float, alph
             res[4] += 1
     print(np.array(res)/len(l_attack))
 
+
 # out_of_bound(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100)
 # out_of_bound(lambda x: abs(np.sin(x)), 10, 0.5, [0], 0.5, 0.9, 0.5, 0.001, 10000)
 
@@ -192,13 +191,6 @@ def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p :
     print(np.array(res)/n_attack)
 
 
-"""Tests"""
-
-# test = NN_to_function(load_model())
-# test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
-# print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
-#       test([17.76, 42.42, 1009.09, 66.26]))
-
 # out_of_bound_same_attack(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1))
 
 
@@ -206,13 +198,16 @@ def sensitivity_at_x(f, x, G_attack, N) :
     res=0
     for _ in range(N) :
         attack=G_attack(x)
-        res+=abs(f(x+attack)-f(x))/norm_2(attack)
+        res+=abs(f(x+attack)-f(x))
     return res/N
+
 
 # print(sensitivity_at_x(lambda x: x[0], [0], good_gaussian(1), 100))
 
+
 def sensitivity_at_x_rel(f, x, G_attack, N, fmax, fmin) :
     return sensitivity_at_x(f, x, G_attack, N)/(fmax-fmin)
+
 
 def sensitivity(f, N, G_attack, M, G_entree, x_moyen) :
     res=0
@@ -220,27 +215,36 @@ def sensitivity(f, N, G_attack, M, G_entree, x_moyen) :
         res+=np.log(sensitivity_at_x(f, x_moyen+G_entree(x_moyen), G_attack, N))
     return np.exp(res/M)
 
+
 def sensitivity_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
     return sensitivity(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
+
 
 def robustness(f, N, G_attack, M, G_entree, x_moyen) :
     return 1/sensitivity(f, N, G_attack, M, G_entree, x_moyen)
 
+
 def approx_robustness(f, x_moyen, G_attack, N) :
     return 1/sensitivity_at_x(f, x_moyen, G_attack, N)
 
+
 # print(robustness(lambda x: x[0]+x[1]**2, 1000, good_gaussian(1), 1000, good_gaussian(10), [0,0]))
+
 
 def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
 
+
 def compare_robustesse(f, N, G_attack, M, G_entree, x_moyen) :
     print(robustness(f, N, G_attack, M, G_entree, x_moyen), approx_robustness(f, x_moyen, G_attack, N))
+
 
 def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
+
 # print(compare_sigma(lambda x: x[0]+x[1]**2, 100, 1, 10, 0.5, 100, good_gaussian(1), 100, good_gaussian(10), [0,0]))
+
 
 def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
@@ -265,6 +269,7 @@ def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
+
 # graph_precision(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
 
 
@@ -286,5 +291,6 @@ def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
     plt.legend()
 
     plt.show()
+
 
 # compare_p_and_exp(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, 430, 470, [[20, 50, 1020, 50]]*10)
