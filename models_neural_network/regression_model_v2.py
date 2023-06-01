@@ -54,8 +54,8 @@ def load_model_v2():
     return model
 
 
-test = NN_to_function_v2(load_model_v2())
-print(test([0 for i in range(24)]))
+# test = NN_to_function_v2(load_model_v2())
+# print(test([0 for i in range(24)]))
 
 if __name__ == "__main__":
 
