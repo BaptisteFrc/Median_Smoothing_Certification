@@ -10,6 +10,7 @@ from torch.utils.data import TensorDataset, DataLoader
 import tqdm
 import os
 
+device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
 class Model(nn.Module):
     def __init__(self, input_size=1, hidden_size=128, num_layers=1, output_size=1):
@@ -57,8 +58,6 @@ test = NN_to_function_v2(load_model_v2())
 print(test([0 for i in range(24)]))
 
 if __name__ == "__main__":
-    # set up device
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
     # import data
     data = pd.read_csv('data/household_power_consumption.txt', sep=';', parse_dates={'datetime': [
