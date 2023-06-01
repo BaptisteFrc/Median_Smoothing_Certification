@@ -217,5 +217,4 @@ if __name__ == "__main__":
         data, input_seq_len, output, batch_size=64)
 
     # Train the model
-    # model = train_model(model, train_loader, test_loader,
-                        num_epochs, learning_rate)
+    # model = train_model(model, train_loader, test_loader,num_epochs, learning_rate)
