@@ -217,4 +217,4 @@ def load_model_v2():
     return model
 
 
-#print(test([0 for i in range(24)]))
+print(NN_to_function_v2(load_model_v2([0 for i in range(24)])))
