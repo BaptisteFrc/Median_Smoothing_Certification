@@ -163,6 +163,7 @@ def out_of_bound(f : callable, n : int, sigma : float, x : list, p : float, alph
     print(np.array(res)/len(l_attack))
 
 # out_of_bound(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100)
+out_of_bound(lambda x: abs(np.sin(x)), 10, 0.5, [0], 0.5, 0.9, 0.5, 0.001, 10000)
 
 
 def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
