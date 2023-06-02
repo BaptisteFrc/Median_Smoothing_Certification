@@ -54,8 +54,16 @@ def load_model_v2():
     return model
 
 
+# 50 premieres valeurs
+l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
+      1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
+      3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
+
+l2 = [3.328, 4.078, 2.388, 3.576, 2.69, 1.116, 0.278, 0.296, 0.21,
+      0.21, 0.378, 0.396, 0.214, 0.684, 2.128, 3.678, 1.352, 1.254,
+      1.734, 1.48, 0.408, 1.888, 1.68, 1.946, 2.786]
 test = NN_to_function_v2(load_model_v2())
-print(test([0 for i in range(24)]))
+print(test(l1[:25]))
 
 if __name__ == "__main__":
 
@@ -213,8 +221,7 @@ if __name__ == "__main__":
     learning_rate = 0.001
 
     # Process data
-    train_loader, test_loader = preprocess_data(
-        data, input_seq_len, output, batch_size=64)
+    #train_loader, test_loader = preprocess_data(data, input_seq_len, output, batch_size=64)
 
     # Train the model
     # model = train_model(model, train_loader, test_loader,num_epochs, learning_rate)
