@@ -3,7 +3,7 @@ import torch
 import pandas as pd
 from torch import nn
 from sklearn.model_selection import train_test_split
-from cleverhans.torch.attacks.gradient import GradientAttack
+from cleverhans.torch.attacks import fast_gradient_method
 
 model = load_model()
 
@@ -17,7 +17,7 @@ X_test = torch.tensor(X_test.values, dtype=torch.float64)
 y_test = torch.tensor(y_test.values, dtype=torch.float64).reshape(-1, 1)
 
 
-fgm = GradientAttack(
+fgm = fast_gradient_method(
     model, loss_fn=torch.nn.CrossEntropyLoss(reduction="sum"), eps=0.3)
 
 

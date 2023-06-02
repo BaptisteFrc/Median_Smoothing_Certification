@@ -12,48 +12,50 @@ def graph_diff(f : callable, n : int, G : callable, p : float):
     only works for d=1
     """
 
-    l_x = np.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 100)
 
     smoothed_f = smoothing(f, n, G, p)
     exp_f = smoothing_exp(f, n, G)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x]) for x in l_x]
-    l_exp = [exp_f([x]) for x in l_x]
+    # l_exp = [exp_f([x]) for x in l_x]
 
-    plt.plot(l_x, l_f, label='f')
-    plt.plot(l_x, l_smoothed, label='f_p')
-    plt.plot(l_x, l_exp, label='f_exp')
+    plt.plot(l_x, l_f, label='y=abs(sin(x))')
+    plt.plot(l_x, l_smoothed, label='smoothed version')
+    # plt.plot(l_x, l_exp, label='f_exp')
 
     plt.legend()
+    plt.title('smoothing of f(x)=abs(sin(x)) for p=0.5, n=1000 and sigma=0.1')
 
     plt.show()
 
 
-# graph_diff(lambda x: abs(np.sin(x)), 10, good_gaussian(0.1), 0.5)
+# graph_diff(lambda x: abs(np.sin(x)), 1000, good_gaussian(0.1), 0.5)
 
 
 def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
-    l_x = np.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 100)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
     l_lower = [smoothed_f([x])[0] for x in l_x]
     l_upper = [smoothed_f([x])[2] for x in l_x]
 
-    plt.plot(l_x, l_f, label='f')
-    plt.plot(l_x, l_smoothed, label='smoothed_f')
-    plt.plot(l_x, l_lower, label='f_l')
-    plt.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_f, label='f(x)=abs(sin(x))')
+    plt.plot(l_x, l_smoothed, label='smoothed version of f k_p')
+    plt.plot(l_x, l_lower, label='lower bound k_p-')
+    plt.plot(l_x, l_upper, label='upper bound k_p+')
 
     plt.legend()
+    plt.title('smoothing and bounds of f(x)=abs(sin(x)) for p=0.5, n=1000, sigma=0.1, alpha=0.99 and epsilon=0.01')
 
     plt.show()
 
 
-# graph_and_bounds(np.sin, 100, 0.1, 0.5, 0.99, 0.1)
+# graph_and_bounds(lambda x: abs(np.sin(x)), 100, 1, 0.5, 0.99, 0.1)
 
 
 def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
@@ -82,7 +84,7 @@ def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : fl
 def max_graph(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float):
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = np.linspace(2, 5, 50)
+    l_x = np.linspace(2, 5, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -91,19 +93,21 @@ def max_graph(f : callable, n : int, sigma : float, p : float, alpha : float, ep
     l_lmax = [smoothed_f([x])[0] for x in l_x]
     l_umax = [smoothed_f([x])[4] for x in l_x]
 
-    plt.plot(l_x, l_f, label='f')
-    plt.plot(l_x, l_smoothed, label='smoothed_f')
-    plt.plot(l_x, l_lower, label='f_l')
-    plt.plot(l_x, l_upper, label='f_u')
-    plt.plot(l_x, l_lmax, label='f_lmax')
-    plt.plot(l_x, l_umax, label='f_umax')
+
+    plt.plot(l_x, l_f, label='f(x)=abs(sin(x))')
+    plt.plot(l_x, l_smoothed, label='smoothed version of f k_p')
+    plt.plot(l_x, l_lower, label='lower bound k_p-')
+    plt.plot(l_x, l_upper, label='upper bound k_p+')
+    plt.plot(l_x, l_lmax, label='k_l-')
+    plt.plot(l_x, l_umax, label='k_u+')
 
     plt.legend()
+    plt.title('smoothing and new bounds of f(x)=abs(sin(x)) for p=0.5, n=1000, sigma=0.1, alpha=0.99 and epsilon=0.01')
 
     plt.show()
 
 
-# max_graph(lambda x: abs(np.sin(x)), 10, 1, 0.5, 0.99, 0.1, 0.001)
+# max_graph(lambda x: abs(np.sin(x)), 1000, 0.1, 0.5, 0.99, 0.01, 0.001)
 
 
 def max_graph_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
@@ -161,8 +165,8 @@ def out_of_bound(f : callable, n : int, sigma : float, x : list, p : float, alph
     print(np.array(res)/len(l_attack))
 
 
-# out_of_bound(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.5, 1, 0.001, 100)
-# out_of_bound(lambda x: abs(np.sin(x)), 10, 0.5, [0], 0.5, 0.9, 0.5, 0.001, 10000)
+# out_of_bound(NN_to_function_v2(load_model_v2()), 1000, 5, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.1, 1, 0.001, 100)
+# out_of_bound(lambda x: abs(np.sin(x[0])), 1000, 1, [2], 0.5, 0.9, 0.1, 0.001, 100)
 
 
 def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
@@ -243,7 +247,7 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
 
-# print(compare_sigma(lambda x: x[0]+x[1]**2, 100, 1, 10, 0.5, 100, good_gaussian(1), 100, good_gaussian(10), [0,0]))
+print(compare_sigma(lambda x: abs(np.sin(x)), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), 10, good_gaussian(1), [2]))
 
 
 def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
@@ -270,7 +274,7 @@ def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
     plt.show()
 
 
-# graph_precision(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, [[20, 50, 1020, 50]]*10)
+# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0.9, 0.1, 0.001, [[20, 50, 1020, 50]]*10)
 
 
 def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
@@ -293,4 +297,4 @@ def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
     plt.show()
 
 
-# compare_p_and_exp(NN_to_function(load_model()), 100, 1, 0.5, 0.9, 1, 0.001, 430, 470, [[20, 50, 1020, 50]]*10)
+# compare_p_and_exp(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0.9, 0.1, 0.001, 0, 9, [[20, 50, 1020, 50]]*10)
