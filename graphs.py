@@ -267,7 +267,7 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
 
-print(compare_sigma(lambda x: abs(np.sin(x)), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), 10, good_gaussian(1), [2]))
+# print(compare_sigma(lambda x: abs(np.sin(x)), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), 10, good_gaussian(1), [2]))
 
 ##graph en plus
 
