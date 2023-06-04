@@ -10,7 +10,8 @@ from torch.utils.data import TensorDataset, DataLoader
 import tqdm
 import os
 from joblib import dump, load
-
+from cleverhans.torch.attacks import projected_gradient_descent, fast_gradient_method
+from adversarial_attacks.attack_FGSM import attack_2
 
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
@@ -33,8 +34,9 @@ class Model(nn.Module):
         c0 = torch.zeros(self.num_layers, x.size(
             0), self.hidden_size).requires_grad_().to(device)
 
-        # Passage dans le RNN
-        out, _ = self.lstm(x, (h0.detach(), c0.detach()))
+        # Passage dans le LSTM
+
+        out, _ = self.lstm(x, (h0, c0))
 
         # Passage dans la couche linéaire
         out = self.fc(out[:, -1, :])
@@ -49,7 +51,9 @@ def NN_to_function_v2(model):
         input = torch.FloatTensor(input).reshape(-1, 1)
         input = scaler.fit_transform(input)
         input = torch.FloatTensor(input).unsqueeze(0)
+
         pred = model(input)
+
         predicted_value = pred[0, -1].item()
         return scaler.inverse_transform([[predicted_value]])[0][0]
     return inner
@@ -72,5 +76,10 @@ l2 = [3.328, 4.078, 2.388, 3.576, 2.69, 1.116, 0.278, 0.296, 0.21,
       1.734, 1.48, 0.408, 1.888, 1.68, 1.946, 2.786]
 
 
-test = NN_to_function_v2(load_model_v2())
-print(test(l1[:-24]))
+#test = NN_to_function_v2(load_model_v2())
+# print(test(l2[:24]))
+
+input = l1
+model = Model()
+adv = attack_2(model, input, 1)
+print(adv)

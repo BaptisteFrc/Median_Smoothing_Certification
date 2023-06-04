@@ -5,10 +5,11 @@ from models_neural_network.regression_model import load_model
 import torch
 from torch import nn
 from math import sqrt
+from joblib import load
 
 
-model = load_model()
-input = [[[17.76, 42.42, 1009.09, 66.26], [468.27]]]
+#model = load_model()
+#input = [[[17.76, 42.42, 1009.09, 66.26], [468.27]]]
 
 
 def fgsm_attack(image, epsilon, data_grad):
@@ -58,4 +59,49 @@ def attack_1(model, input, epsilon):
     return attack.tolist(), output.tolist(), attacked_output.tolist()
 
 
-# print(attack_1(model, input, 0.5))
+def attack_2(model, input, epsilon):
+
+    scaler = load('models_neural_network/scaler.bin')
+    input = torch.FloatTensor(input).reshape(-1, 1)
+    input = scaler.fit_transform(input)
+    target = torch.FloatTensor([input[-1]]).reshape(-1, 1)
+    input = torch.FloatTensor(input[:-1, :]).unsqueeze(0)
+    model.eval()
+    # Set requires_grad attribute of tensor. Important for Attack
+    data = input.clone().detach().requires_grad_(True)
+
+    # Forward pass the data through the model
+    output = model(data)
+    #output = torch.FloatTensor(scaler.inverse_transform(output.detach().numpy()))
+
+    # Calculate the loss
+    loss_fn = nn.MSELoss()
+    loss = loss_fn(output, target)
+
+    # Zero all existing gradients
+    model.zero_grad()
+
+    # Calculate gradients of model in backward pass
+
+    loss.backward()
+
+    # Collect datagrad
+    #input.requires_grad = True
+    data_grad = data.grad.data
+
+    # Call FGSM Attack
+    attack = fgsm_attack(input, epsilon, data_grad)
+
+    # Re-classify the perturbed image
+    attacked_output = model(data+attack)
+    attacked_output = attacked_output[0, -1].item()
+    attacked_output = scaler.inverse_transform([[attacked_output]])[0][0]
+
+    output = output[0, -1].item()
+    output = scaler.inverse_transform([[output]])[0][0]
+
+    attack = attack.tolist()
+    print(attack)
+
+    # Return the accuracy and an adversarial example
+    return attack, output, attacked_output
