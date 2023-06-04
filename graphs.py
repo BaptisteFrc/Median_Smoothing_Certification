@@ -4,7 +4,7 @@ from smoothing.smoothing import *
 import matplotlib.pyplot as plt
 from models_neural_network.regression_model import load_model, NN_to_function
 from models_neural_network.regression_model_v3 import load_model_v2, NN_to_function_v2
-from adversarial_attacks.attack_FGSM import attack_1
+from adversarial_attacks.attack_FGSM import attack_2
 
 
 
@@ -55,7 +55,7 @@ def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : fl
 
     plt.show()
 
-graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.01, 0.5, 0.99, 0.01)
+# graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.01, 0.5, 0.99, 0.01)
 
 def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -166,13 +166,15 @@ def out_of_bound(f : callable, n : int, sigma : float, x : list, p : float, alph
 
 
 # out_of_bound(NN_to_function_v2(load_model_v2()), 1000, 5, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.1, 1, 0.001, 100)
-# out_of_bound(lambda x: abs(np.sin(x[0])), 1000, 1, [2], 0.5, 0.9, 0.1, 0.001, 100)
+# out_of_bound(lambda x: abs(np.sin(x[0])), 1000, 1, [2], 0.5, 0.5, 0.1, 0.001, 1000)
 
 
 def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
     """
     simulates attacks to see if the proportion of tries out of bound is close to the expected value.
     """
+    attack=[a[0] for a in attack]
+    attack=np.array(attack)*epsilon/norm_2(attack)
     res = [0]*5
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
     lower = smoothed_f(x)[1]
@@ -202,10 +204,10 @@ def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p :
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
-# out_of_bound_same_attack(NN_to_function(load_model()), 100, 1, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.99, 1, 0.001, 100, attack_1(load_model(), [[[17.76, 42.42, 1009.09, 66.26], [468.27]]], 1))
-
-
-
+# l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
+#       1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
+#       3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
+# out_of_bound_same_attack(NN_to_function_v2(load_model_v2()), 100, 0.01, l1[:24], 0.5, 0.515, 0.001, 0.001, 100, attack_2(load_model_v2(), l1, 0.01)[0][0])
 
 
 
@@ -249,7 +251,9 @@ def robustness(f, N, G_attack, M, G_entree, x_moyen) :
 def approx_robustness(f, x_moyen, G_attack, N) :
     return 1/sensitivity_at_x(f, x_moyen, G_attack, N)
 
-# print(robustness(lambda x: x[0]+x[1]**2, 1000, good_gaussian(1), 1000, good_gaussian(10), [0,0]))
+# print(robustness(lambda x: abs(sin(x)), 100, good_gaussian(0.01), 100, good_gaussian(0.5), [2]))
+# print(robustness(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.01), 100, good_gaussian(0.5), [2 for _ in range(24)]))
+# print(robustness(smoothin_exp(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.1)), 100, good_gaussian(0.01), 10, good_gaussian(0.5), [2 for _ in range(24)]))
 
 def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
@@ -265,7 +269,7 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
 
-# print(compare_sigma(lambda x: abs(np.sin(x)), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), 10, good_gaussian(1), [2]))
+print(compare_sigma(NN_to_function_v2(load_model_v2()), 100, 0.1, 1, 0.5, 100, good_gaussian(0.01), 10, good_gaussian(0.5), [2 for _ in range(24)]))
 
 ##graph en plus
 

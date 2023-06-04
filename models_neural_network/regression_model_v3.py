@@ -82,4 +82,4 @@ l2 = [3.328, 4.078, 2.388, 3.576, 2.69, 1.116, 0.278, 0.296, 0.21,
 input = l1
 model = Model()
 adv = attack_2(model, input, 1)
-print(adv)
+# print(adv)
