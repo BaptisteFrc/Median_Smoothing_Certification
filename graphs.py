@@ -2,9 +2,8 @@
 
 from smoothing.smoothing import *
 import matplotlib.pyplot as plt
-import sys
-from pprint import pprint
 from models_neural_network.regression_model import load_model, NN_to_function
+from models_neural_network.regression_model_v3 import load_model_v2, NN_to_function_v2
 from adversarial_attacks.attack_FGSM import attack_1
 
 
@@ -39,7 +38,7 @@ def graph_diff(f : callable, n : int, G : callable, p : float):
 def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
-    l_x = np.linspace(2, 5, 100)
+    l_x = np.linspace(2, 5, 1000)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
@@ -52,12 +51,11 @@ def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : fl
     plt.plot(l_x, l_upper, label='upper bound k_p+')
 
     plt.legend()
-    plt.title('smoothing and bounds of f(x)=abs(sin(x)) for p=0.5, n=1000, sigma=0.1, alpha=0.99 and epsilon=0.01')
+    plt.title('smoothing and bounds of f(x)=abs(sin(x)) for p=0.5, n=100, sigma=0.01, alpha=0.99 and epsilon=0.01')
 
     plt.show()
 
-
-# graph_and_bounds(lambda x: abs(np.sin(x)), 100, 1, 0.5, 0.99, 0.1)
+graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.01, 0.5, 0.99, 0.01)
 
 def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -283,10 +281,12 @@ def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
     l_lmax = [smoothed_f([x])[0] for x in X]
     l_umax = [smoothed_f([x])[4] for x in X]
 
-    plt.plot(l_x, l_f, label='f')
-    plt.plot(l_x, l_smoothed, label='smoothed_f')
-    plt.plot(l_x, l_lower, label='f_l')
-    plt.plot(l_x, l_upper, label='f_u')
+    plt.plot(l_x, l_f, label='the RNN respons')
+    plt.plot(l_x, l_smoothed, label='smoothed version of f k_p')
+    plt.plot(l_x, l_lower, label='lower bound k_p-')
+    plt.plot(l_x, l_upper, label='upper bound k_p+')
+
+    plt.title('smoothing and bounds of our RNN for p=0.5, n=1000, sigma=0.1, alpha=0.9 and epsilon=0.01')
     # plt.plot(l_x, l_lmax, label='f_lmax')
     # plt.plot(l_x, l_umax, label='f_umax')
 
@@ -294,8 +294,8 @@ def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
-
-# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0.9, 0.1, 0.001, [[20, 50, 1020, 50]]*10)
+# point=[1,1,1,1,2,2,2,2,1,1,1,2,2,2,2,3,3,3,3,3,3,2,2,2]
+# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 0.1, 0.5, 0.9, 0.01, 0.001, [point]*10)
 
 
 def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
