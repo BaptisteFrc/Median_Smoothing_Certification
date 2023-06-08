@@ -76,10 +76,10 @@ l2 = [3.328, 4.078, 2.388, 3.576, 2.69, 1.116, 0.278, 0.296, 0.21,
       1.734, 1.48, 0.408, 1.888, 1.68, 1.946, 2.786]
 
 
-#test = NN_to_function_v2(load_model_v2())
+# test = NN_to_function_v2(load_model_v2())
 # print(test(l2[:24]))
 
-input = l1
-model = Model()
-adv = attack_2(model, input, 1)
+# input = l1
+# model = Model()
+# adv = attack_2(model, input, 1)
 # print(adv)
