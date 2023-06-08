@@ -32,13 +32,13 @@ def graph_diff(f : callable, n : int, G : callable, p : float):
     plt.show()
 
 
-# graph_diff(lambda x: abs(np.sin(x)), 1000, good_gaussian(0.1), 0.5)
+# graph_diff(lambda x: abs(np.sin(x)), 100, good_gaussian(0.1), 0.5)
 
 
 def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds(f, n, sigma, p, alpha, epsilon)
 
-    l_x = np.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 100)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
@@ -55,7 +55,7 @@ def graph_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : fl
 
     plt.show()
 
-# graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.01, 0.5, 0.99, 0.01)
+# graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.1, 0.5, 0.9, 0.1)
 
 def graph_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float):
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
@@ -166,7 +166,7 @@ def out_of_bound(f : callable, n : int, sigma : float, x : list, p : float, alph
 
 
 # out_of_bound(NN_to_function_v2(load_model_v2()), 1000, 5, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.1, 1, 0.001, 100)
-# out_of_bound(lambda x: abs(np.sin(x[0])), 1000, 1, [2], 0.5, 0.5, 0.1, 0.001, 1000)
+# out_of_bound(lambda x: abs(np.sin(x[0])), 100, 1, [2], 0.5, 0.5, 0.1, 0.001, 100)
 
 
 def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p : float, alpha : float, epsilon : float, precision : float, n_attack : list, attack : list):
@@ -204,9 +204,9 @@ def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p :
 # print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
 #       test([17.76, 42.42, 1009.09, 66.26]))
 
-# l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
-#       1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
-#       3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
+l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
+      1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
+      3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
 # out_of_bound_same_attack(NN_to_function_v2(load_model_v2()), 100, 0.01, l1[:24], 0.5, 0.515, 0.001, 0.001, 100, attack_2(load_model_v2(), l1, 0.01)[0][0])
 
 
@@ -268,9 +268,11 @@ def compare_robustesse(f, N, G_attack, M, G_entree, x_moyen) :
 def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, M, G_entree, x_moyen) :
     return robustness(f, N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma1), p), N, G_attack, M, G_entree, x_moyen), robustness(smoothing(f, n, good_gaussian(sigma2), p), N, G_attack, M, G_entree, x_moyen)
 
+def compare_sigma_2(f, n, sigma1, sigma2, p, N, G_attack, x) :
+    return sensitivity_at_x(f, x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma1), p), x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma2), p), x, G_attack, N)
 
-# print(compare_sigma(NN_to_function_v2(load_model_v2()), 100, 0.1, 1, 0.5, 100, good_gaussian(0.01), 10, good_gaussian(0.5), [2 for _ in range(24)]))
-print(compare_sigma(lambda x : np.sin(x), 100, 0.1, 1, 0.5, 100, good_gaussian(0.01), 10, good_gaussian(0.5), [0]))
+print(compare_sigma_2(NN_to_function_v2(load_model_v2()), 10000, 1, 3, 0.5, 100, good_gaussian(1), l1[:-1]))
+# print(compare_sigma_2(lambda x : np.sin(x), 10000, 0.1, 1, 0.5, 100, good_gaussian(0.1), [2]))
 
 ##graph en plus
 
@@ -299,8 +301,12 @@ def graph_precision(f, n, sigma, p, alpha, epsilon, precision, X):
 
     plt.show()
 
-# point=[1,1,1,1,2,2,2,2,1,1,1,2,2,2,2,3,3,3,3,3,3,2,2,2]
-# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 0.1, 0.5, 0.9, 0.01, 0.001, [point]*10)
+
+l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
+      1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
+      3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
+
+# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 3, 0.5, 0.9, 1, 0.001, l1[:-1]*10)
 
 
 def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
