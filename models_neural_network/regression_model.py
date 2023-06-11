@@ -5,13 +5,8 @@ from torch import nn
 import torch.optim as optim
 import torch.nn.functional as F
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
 import tqdm
-import copy
 import numpy as np
-
-# changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pasd
-# changer la taille du model, tracer training loss, relativement, verifier que ca n'overfit pas
 
 """
 looking for when the nn will not give satisfying results...
@@ -42,10 +37,6 @@ X = df[['AT', 'V', 'AP', 'RH']]
 y = df['PE']
 X_train, X_test, y_train, y_test = train_test_split(
     X, y, train_size=0.75, shuffle=True)
-# scaler = StandardScaler()
-# scaler.fit(X_train)
-# X_train = scaler.transform(X_train)
-# X_test = scaler.transform(X_test)
 X_train = torch.tensor(X_train.values, dtype=torch.float64)
 y_train = torch.tensor(y_train.values, dtype=torch.float64).reshape(-1, 1)
 X_test = torch.tensor(X_test.values, dtype=torch.float64)
@@ -136,10 +127,13 @@ def train():
     plt.legend()
     plt.show()
 
+# transform the neural network into a function
+
 
 def NN_to_function(model):
     def inner(input):
-        model.load_state_dict(torch.load("models_neural_network/regression.pt"))
+        model.load_state_dict(torch.load(
+            "models_neural_network/regression.pt"))
         model.eval()
         input = torch.DoubleTensor(input)
         y_pred = model(input)
@@ -151,7 +145,3 @@ def load_model():
     model = NeuralNetwork()
     model.load_state_dict(torch.load("models_neural_network/regression.pt"))
     return model
-
-# train()
-# test=NN_to_function(load_model())
-# print(test([17.76, 42.42, 1009.09, 66.26]))

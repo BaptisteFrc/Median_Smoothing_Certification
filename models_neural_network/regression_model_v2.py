@@ -75,8 +75,6 @@ if __name__ == "__main__":
     #     data['datetime'])).drop('datetime', axis=1)
     # data = data.resample('1h').fillna(method='bfill')[
     #     'Global_active_power'].reset_index(name='Global_active_power')
-    # data.min : 0.078
-    # data.max : 8.758
 
     def create_sequences(data: np.ndarray, sequence_length: int, pred_len: int = 1):
         """Create sequences from data with a given sequence (input) length and a given prediction (output) length
