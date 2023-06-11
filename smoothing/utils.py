@@ -43,6 +43,7 @@ def phi_minus_1(p : float, sigma : float):
     """
     return scipy.stats.norm.ppf(p, 0, sigma)
 
+# the four following functions compute the variables described in the report
 
 def q_lower(n : int, p : float, alpha : float, epsilon : float, sigma :float):
     p_l = phi(phi_minus_1(p, sigma)-epsilon/sigma, sigma)
@@ -102,14 +103,9 @@ def norm_2(x : list):
     return np.sqrt(res)
 
 
-def Rd_to_R(f : callable, d : int):
-    def inner(x):
-        return f(list(x)*d)
-    return inner
-
 def very_good_gaussian(*args):
     """
-    Ensures that the Gaussian is well-valued in Rd.
+    Ensures that the Gaussian is well-valued in Rd. Enables a more complex variance matrix.
     """
     def inner(x):
         d = len(x)

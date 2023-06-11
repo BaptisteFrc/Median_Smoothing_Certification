@@ -1,15 +1,4 @@
-'''
-mean
-commentaires
-cohérence des formalisme
-segmentation
-pylab
-
-sigma/epsilon
-'''
-
 from smoothing.utils import *
-
 
 
 def smoothing(f : callable, n : int, G : callable, p : float) ->callable:
@@ -26,13 +15,6 @@ def smoothing(f : callable, n : int, G : callable, p : float) ->callable:
     """
 
     qp = q_p(n, p)
-
-    """
-    supprimer si v3
-    All calculations will be made from the same sample.
-    This allows in particular to obtain the same result when recalculating f_smoothed at the same point.
-    This is also the case for every function below.
-    """
 
     def smoothed_f(x : list):
 
@@ -75,6 +57,8 @@ def smoothing_exp(f : callable, n : int, G : callable) ->callable:
 
 def smoothing_and_bounds(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float) ->callable:
     """
+    Also computes the certification bounds
+    
     Args:
         f (function): from Rd to R
         n (int): number of iterations of random noise generation
