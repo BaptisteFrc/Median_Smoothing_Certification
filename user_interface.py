@@ -4,6 +4,9 @@ from models_neural_network.regression_model_powerplant import load_model, NN_to_
 from models_neural_network.regression_model_household import load_model_v2, NN_to_function_v2
 from adversarial_attacks.attack_FGSM import attack_2
 
+l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
+      1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
+      3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
 
 def graph_diff(f: callable, n: int, G: callable, p: float):
     """
@@ -29,7 +32,7 @@ def graph_diff(f: callable, n: int, G: callable, p: float):
     plt.show()
 
 
-# graph_diff(lambda x: abs(np.sin(x)), 100, good_gaussian(0.1), 0.5)
+# graph_diff(lambda x: abs(np.sin(x)), 1000, good_gaussian(1), 0.5)
 
 
 def graph_and_bounds(f: callable, n: int, sigma: float, p: float, alpha: float, epsilon: float):
@@ -51,12 +54,11 @@ def graph_and_bounds(f: callable, n: int, sigma: float, p: float, alpha: float, 
     plt.plot(l_x, l_upper, label='upper bound k_p+')
 
     plt.legend()
-    plt.title(
-        'smoothing and bounds of f(x)=abs(sin(x)) for p=0.5, n=100, sigma=0.01, alpha=0.99 and epsilon=0.01')
 
     plt.show()
 
-# graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 0.1, 0.5, 0.9, 0.1)
+
+# graph_and_bounds(lambda x: abs(np.sin(x)), 1000, 1, 0.5, 0.9, 0.1)
 
 
 def graph_and_bounds_exp(f: callable, n: int, sigma: float, l: float, u: float, alpha: float, epsilon: float):
@@ -65,7 +67,7 @@ def graph_and_bounds_exp(f: callable, n: int, sigma: float, l: float, u: float, 
     """
     smoothed_f = smoothing_and_bounds_exp(f, n, sigma, l, u, epsilon, alpha)
 
-    l_x = np.linspace(-10, 10, 1000)
+    l_x = np.linspace(2, 5, 100)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[1] for x in l_x]
@@ -82,7 +84,7 @@ def graph_and_bounds_exp(f: callable, n: int, sigma: float, l: float, u: float, 
     plt.show()
 
 
-# graph_and_bounds_exp(np.sin, 10, 1, -1, 1, 0.99, 0.1)
+# graph_and_bounds_exp(lambda x : abs(np.sin(x)), 1000, 1, 0, 1, 0.9, 0.1)
 
 
 def max_graph(f: callable, n: int, sigma: float, p: float, alpha: float, epsilon: float, precision: float):
@@ -91,7 +93,7 @@ def max_graph(f: callable, n: int, sigma: float, p: float, alpha: float, epsilon
     """
     smoothed_f = max_bound(f, n, sigma, p, alpha, epsilon, precision)
 
-    l_x = np.linspace(2, 5, 1000)
+    l_x = np.linspace(2, 5, 100)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -108,12 +110,11 @@ def max_graph(f: callable, n: int, sigma: float, p: float, alpha: float, epsilon
     plt.plot(l_x, l_umax, label='k_u+')
 
     plt.legend()
-    plt.title('smoothing and new bounds of f(x)=abs(sin(x)) for p=0.5, n=1000, sigma=0.1, alpha=0.99 and epsilon=0.01')
 
     plt.show()
 
 
-# max_graph(lambda x: abs(np.sin(x)), 1000, 0.1, 0.5, 0.99, 0.01, 0.001)
+# max_graph(lambda x: abs(np.sin(x)), 1000, 1, 0.5, 0.9, 0.1, 0.001)
 
 
 def max_graph_exp(f: callable, n: int, sigma: float, l: float, u: float, alpha: float, epsilon: float):
@@ -123,7 +124,7 @@ def max_graph_exp(f: callable, n: int, sigma: float, l: float, u: float, alpha: 
 
     smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
 
-    l_x = np.linspace(2, 5, 2)
+    l_x = np.linspace(2, 5, 100)
 
     l_f = [f([x]) for x in l_x]
     l_smoothed = [smoothed_f([x])[2] for x in l_x]
@@ -174,8 +175,8 @@ def out_of_bound(f: callable, n: int, sigma: float, x: list, p: float, alpha: fl
     print(np.array(res)/len(l_attack))
 
 
-# out_of_bound(NN_to_function_v2(load_model_v2()), 1000, 5, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.1, 1, 0.001, 100)
-# out_of_bound(lambda x: abs(np.sin(x[0])), 100, 1, [2], 0.5, 0.5, 0.1, 0.001, 100)
+# out_of_bound(NN_to_function(load_model()), 100, 5, [17.76, 42.42, 1009.09, 66.26], 0.5, 0.9, 1, 0.001, 100)
+# out_of_bound(lambda x: abs(np.sin(x[0])), 100, 1, [2], 0.5, 0.9, 0.1, 0.001, 1000)
 
 
 def out_of_bound_same_attack(f: callable, n: int, sigma: float, x: list, p: float, alpha: float, epsilon: float, precision: float, n_attack: list, attack: list):
@@ -206,17 +207,7 @@ def out_of_bound_same_attack(f: callable, n: int, sigma: float, x: list, p: floa
     print(np.array(res)/n_attack)
 
 
-"""Tests"""
-
-# test = NN_to_function(load_model())
-# test_smoothed = smoothing_and_bounds(test, 100, 1, 0.5, 0.9, 1)
-# print(test_smoothed([17.76, 42.42, 1009.09, 66.26]),
-#       test([17.76, 42.42, 1009.09, 66.26]))
-
-# l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
-#       1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
-#       3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
-# out_of_bound_same_attack(NN_to_function_v2(load_model_v2()), 100, 0.01, l1[:24], 0.5, 0.515, 0.001, 0.001, 100, attack_2(load_model_v2(), l1, 0.01)[0][0])
+# out_of_bound_same_attack(NN_to_function_v2(load_model_v2()), 100, 3, l1[:-1], 0.5, 0.9, 1, 0.001, 100, attack_2(load_model_v2(), l1)[0][0])
 
 
 def graph_NN(f, n, sigma, p, alpha, epsilon, precision, X):
@@ -246,11 +237,7 @@ def graph_NN(f, n, sigma, p, alpha, epsilon, precision, X):
     plt.show()
 
 
-# l1 = [4.216, 2.79, 4.07, 3.206, 3.314, 3.464, 2.41, 1.044, 1.008,
-#       1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
-#       3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
-
-# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 3, 0.5, 0.9, 1, 0.001, l1[:-1]*10)
+# graph_NN(NN_to_function_v2(load_model_v2()), 100, 3, 0.5, 0.9, 1, 0.001, [l1[:-1]]*10)
 
 
 def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X):
@@ -276,7 +263,7 @@ def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X):
     plt.show()
 
 
-# compare_p_and_exp(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0.9, 0.1, 0.001, 0, 9, [[20, 50, 1020, 50]]*10)
+# compare_p_and_exp(NN_to_function_v2(load_model_v2()), 100, 3, 0.5, 0.9, 1, 0.001, 0, 9, [l1[:-1]]*10)
 
 
 """
@@ -291,6 +278,7 @@ def sensitivity_at_x(f, x, G_attack, N):
         attack = G_attack(x)
         res += abs(f(x+attack)-f(x))/norm_2(attack)
     return res/N
+
 
 # print(sensitivity_at_x(lambda x: x[0], [0], good_gaussian(1), 100))
 
@@ -318,9 +306,9 @@ def robustness(f, N, G_attack, M, G_entree, x_moyen):
 def approx_robustness(f, x_moyen, G_attack, N):
     return 1/sensitivity_at_x(f, x_moyen, G_attack, N)
 
-# print(robustness(lambda x: abs(np.sin(x)), 100, good_gaussian(0.01), 1000, good_gaussian(0.5), [2]))
-# print(robustness(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.01), 100, good_gaussian(0.5), [2 for _ in range(24)]))
-# print(robustness(smoothing_exp(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.1)), 100, good_gaussian(0.01), 10, good_gaussian(0.5), [2 for _ in range(24)]))
+
+# print(robustness(lambda x: abs(np.sin(x)), 100, good_gaussian(0.5), 100, good_gaussian(5), [2]))
+# print(robustness(NN_to_function_v2(load_model_v2()), 100, good_gaussian(1), 100, good_gaussian(5), l1[ :-1]))
 
 
 def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin):
@@ -331,5 +319,5 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, x):
     return sensitivity_at_x(f, x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma1), p), x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma2), p), x, G_attack, N)
 
 
-# print(compare_sigma(NN_to_function_v2(load_model_v2()), 10000, 1, 3, 0.5, 100, good_gaussian(1), l1[:-1]))
-# print(compare_sigma(lambda x : np.sin(x), 10000, 0.1, 1, 0.5, 100, good_gaussian(0.1), [2]))
+# print(compare_sigma(NN_to_function_v2(load_model_v2()), 1000, 1, 3, 0.5, 100, good_gaussian(1), l1[:-1]))
+# print(compare_sigma(lambda x : np.sin(x), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), [2]))

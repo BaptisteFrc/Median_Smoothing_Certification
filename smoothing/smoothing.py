@@ -124,7 +124,7 @@ def smoothing_and_bounds_exp(f : callable, n : int, sigma : float, l : float, u 
 
         f_exp = exp(sample)
 
-        return l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)-epsilon-security)/sigma, sigma), f_exp, l+(u-l)*phi((sigma*phi_minus_1((f_exp-l)/(u-l), sigma)+epsilon+security)/sigma, sigma)
+        return l+(u-l)*scipy.stats.norm.cdf((sigma*scipy.stats.norm.ppf((f_exp-l)/(u-l), 0, 1)-epsilon-security)/sigma, 0, 1), f_exp, l+(u-l)*scipy.stats.norm.cdf((sigma*scipy.stats.norm.ppf((f_exp-l)/(u-l), 0, 1)+epsilon+security)/sigma, 0, 1)
 
     return f_smoothed
 
@@ -194,10 +194,10 @@ def max_bound_exp(f : callable, n : int, sigma : float, l : float, u : float, ep
             sample.append(float(f(x_with_noise)))
 
         f_exp = exp(sample)
-        f_l = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
-                                             (u-l), sigma)-epsilon-security)/sigma, sigma)
-        f_u = l+(u-l)*phi((sigma*phi_minus_1((f_exp-l) /
-                                             (u-l), sigma)+epsilon+security)/sigma, sigma)
+        f_l = l+(u-l)*scipy.stats.norm.cdf((sigma*scipy.stats.norm.ppf((f_exp-l) /
+                                             (u-l), 0, 1)-epsilon-security)/sigma, 0, 1)
+        f_u = l+(u-l)*scipy.stats.norm.cdf((sigma*scipy.stats.norm.ppf((f_exp-l) /
+                                             (u-l), 0, 1)+epsilon+security)/sigma, 0, 1)
 
         return f_l-security, f_l, f_exp, f_u, f_u+security
 

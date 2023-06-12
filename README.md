@@ -1,6 +1,4 @@
-# Title
-
-Certification and Robustness of Neural Networks by Gaussian Smoothing
+# Certification and Robustness of Neural Networks by Gaussian Smoothing
 
 ## Description of the project
 

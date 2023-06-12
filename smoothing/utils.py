@@ -29,30 +29,16 @@ def exp(sample : list):
         res += el
     return res/len(sample)
 
-
-def phi(x : list, sigma : float):
-    """
-    Returns the cdf of the centered Gaussian.
-    """
-    return scipy.stats.norm.cdf(x, 0, sigma)
-
-
-def phi_minus_1(p : float, sigma : float):
-    """
-    Returns the inverse of the cdf of the centered Gaussian.
-    """
-    return scipy.stats.norm.ppf(p, 0, sigma)
-
 # the four following functions compute the variables described in the report
 
 def q_lower(n : int, p : float, alpha : float, epsilon : float, sigma :float):
-    p_l = phi(phi_minus_1(p, sigma)-epsilon/sigma, sigma)
+    p_l = scipy.stats.norm.cdf(scipy.stats.norm.ppf(p, 0, 1)-epsilon/sigma, 0, 1)
     ql = max(0, int(n - 1 - scipy.stats.binom.ppf(alpha, n, 1 - p_l)))
     return ql
 
 
 def q_upper( n : int, p : float, alpha : float, epsilon : float, sigma :float):
-    p_u = phi(phi_minus_1(p, sigma)+epsilon/sigma, sigma)
+    p_u = scipy.stats.norm.cdf(scipy.stats.norm.ppf(p, 0, 1)+epsilon/sigma, 0, 1)
     qu = min(n-1, int(scipy.stats.binom.ppf(alpha, n, p_u)))
     return qu
 
