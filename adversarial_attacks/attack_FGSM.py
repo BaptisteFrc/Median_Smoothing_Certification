@@ -10,10 +10,6 @@ from math import sqrt
 from joblib import load
 
 
-#model = load_model()
-#input = [[[17.76, 42.42, 1009.09, 66.26], [468.27]]]
-
-
 def attack_1(model, input):
     # FGSM attack compatible with regression_model
 
