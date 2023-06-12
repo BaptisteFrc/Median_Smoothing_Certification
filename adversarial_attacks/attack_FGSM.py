@@ -2,11 +2,8 @@
 inspired by https://pytorch.org/tutorials/beginner/fgsm_tutorial.html
 We construct the image adversary by calculating the gradients of the loss, computing the sign of the gradient, and then using the sign to build the image adversary
 '''
-
-from models_neural_network.regression_model_powerplant import load_model
 import torch
 from torch import nn
-from math import sqrt
 from joblib import load
 
 
@@ -47,7 +44,7 @@ def attack_1(model, input):
 
 
 def attack_2(model, input):
-    # FGSM attack compatible with regression_model_v3
+    # FGSM attack compatible with regression_model_household
 
     scaler = load('models_neural_network/scaler.bin')
     input = torch.FloatTensor(input).reshape(-1, 1)
