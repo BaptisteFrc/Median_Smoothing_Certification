@@ -121,7 +121,7 @@ def max_graph_exp(f : callable, n : int, sigma : float, l : float, u : float, al
     Same for the mean method.
     """
 
-    smoothed_f = max_bound_exp(f, n, sigma, l, u, alpha, epsilon)
+    smoothed_f = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
 
     l_x = np.linspace(2, 5, 2)
 
@@ -221,7 +221,7 @@ def out_of_bound_same_attack(f : callable, n : int, sigma : float, x : list, p :
 
 
 
-def graph_NN(f : callable, n : int, sigma : float, p : float, alpha : float, epsilon : float, precision : float, X : list):
+def graph_NN(f, n, sigma, p, alpha, epsilon, precision, X):
     """
     Draws the smoothed version of the NN and the bounds for a given set of entry X.
     """
@@ -252,17 +252,17 @@ def graph_NN(f : callable, n : int, sigma : float, p : float, alpha : float, eps
 #       1.334, 2.542, 2.402, 2.294, 2.076, 0.222, 2.28, 2.94, 2.292,
 #       3.65, 1.962, 1.754, 1.744, 2.11, 2.818, 3.388]
 
-# graph_NN(NN_to_function_v2(load_model_v2()), 1000, 3, 0.5, 0.9, 1, 0.001, l1[:-1]*10)
+# graph_precision(NN_to_function_v2(load_model_v2()), 1000, 3, 0.5, 0.9, 1, 0.001, l1[:-1]*10)
 
 
 
 
-def compare_p_and_exp(f : callable, n : int, sigma : float, p : float, l : float, u : float, alpha : float, epsilon : float, precision : float, X : list) :
+def compare_p_and_exp(f, n, sigma, p, alpha, epsilon, precision, l, u, X) :
     """
     Compare the distance between the bounds in the case of the mean smoothing and the quantil smoothing.
     """
     f_p = max_bound(f, n, sigma, p, alpha, epsilon, precision)
-    f_exp = max_bound_exp(f, n, sigma, l, u, alpha, epsilon)
+    f_exp = max_bound_exp(f, n, sigma, l, u, epsilon, alpha)
     l_x = range(len(X))
 
     l_p_1 = [f_p([x])[3]-f_p([x])[1] for x in X]
@@ -280,7 +280,7 @@ def compare_p_and_exp(f : callable, n : int, sigma : float, p : float, l : float
     plt.show()
 
 
-# compare_p_and_exp(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0, 9, 0.9, 0.1, 0.001, [[20, 50, 1020, 50]]*10)
+# compare_p_and_exp(NN_to_function_v2(load_model_v2()), 1000, 1, 0.5, 0.9, 0.1, 0.001, 0, 9, [[20, 50, 1020, 50]]*10)
 
 
 """
@@ -288,7 +288,7 @@ This part focuses on the new notion of robustness described in the report.
 The suffix rel stands for relative and means that the value is divided by fmax-fmin.
 """
 
-def sensitivity_at_x(f : callable, x : list, G_attack : callable, N : int) :
+def sensitivity_at_x(f, x, G_attack, N) :
     res=0
     for _ in range(N) :
         attack=G_attack(x)
@@ -297,39 +297,39 @@ def sensitivity_at_x(f : callable, x : list, G_attack : callable, N : int) :
 
 # print(sensitivity_at_x(lambda x: x[0], [0], good_gaussian(1), 100))
 
-def sensitivity_at_x_rel(f : callable, x : list, G_attack : callable, N : int, fmax : float, fmin : float) :
+def sensitivity_at_x_rel(f, x, G_attack, N, fmax, fmin) :
     return sensitivity_at_x(f, x, G_attack, N)/(fmax-fmin)
 
-def sensitivity(f : callable, x_moyen :list, G_attack : callable, N : int, M : int, G_entree : callable) :
+def sensitivity(f, N, G_attack, M, G_entree, x_moyen) :
     res=0
     for _ in range (M) :
         res+=np.log(sensitivity_at_x(f, x_moyen+G_entree(x_moyen), G_attack, N))
     return np.exp(res/M)
 
-def sensitivity_rel(f : callable, x_moyen : list, G_attack : callable, N : int, M : int, G_entree : callable, fmax : float, fmin : float) :
-    return sensitivity(f, x_moyen, G_attack, N, M, G_entree)/(fmax-fmin)
+def sensitivity_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
+    return sensitivity(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
 
-def robustness(f :callable, x_moyen : list, G_attack : callable, N : int, M : int, G_entree : callable) :
-    return 1/sensitivity(f, x_moyen, G_attack, N, M, G_entree)
+def robustness(f, N, G_attack, M, G_entree, x_moyen) :
+    return 1/sensitivity(f, N, G_attack, M, G_entree, x_moyen)
 
-def approx_robustness(f : callable, x_moyen : list, G_attack : callable, N : int):
+def approx_robustness(f, x_moyen, G_attack, N) :
     return 1/sensitivity_at_x(f, x_moyen, G_attack, N)
 
-# print(robustness(lambda x: abs(np.sin(x)), [2], good_gaussian(0.01), 100, 1000, good_gaussian(0.5)))
-# print(robustness(NN_to_function_v2(load_model_v2()), [2 for _ in range(24)], good_gaussian(0.01), 100, 100, good_gaussian(0.5)))
-# print(robustness(smoothing_exp(NN_to_function_v2(load_model_v2()), [2 for _ in range(24)], good_gaussian(0.1)), 100, 100, good_gaussian(0.01), 10, good_gaussian(0.5)))
+# print(robustness(lambda x: abs(np.sin(x)), 100, good_gaussian(0.01), 1000, good_gaussian(0.5), [2]))
+# print(robustness(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.01), 100, good_gaussian(0.5), [2 for _ in range(24)]))
+# print(robustness(smoothing_exp(NN_to_function_v2(load_model_v2()), 100, good_gaussian(0.1)), 100, good_gaussian(0.01), 10, good_gaussian(0.5), [2 for _ in range(24)]))
 
-def robustness_rel(f : callable, x_moyen : list, G_attack : callable, N : int, M : int, G_entree : callable, fmax : float, fmin : float) :
-    return robustness(f, x_moyen, G_attack, N, M, G_entree)/(fmax-fmin)
-
-
+def robustness_rel(f, N, G_attack, M, G_entree, x_moyen, fmax, fmin) :
+    return robustness(f, N, G_attack, M, G_entree, x_moyen)/(fmax-fmin)
 
 
-def compare_sigma(f : callable, n : int, sigma1 : float, sigma2 : float, p : float, x : list, G_attack : callable, N : int) :
+
+
+def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, x) :
     return sensitivity_at_x(f, x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma1), p), x, G_attack, N), sensitivity_at_x(smoothing(f, n, good_gaussian(sigma2), p), x, G_attack, N)
 
 
-# print(compare_sigma(NN_to_function_v2(load_model_v2()), 10000, 1, 3, 0.5, l1[:-1], good_gaussian(1), 100))
-# print(compare_sigma(lambda x : np.sin(x), 10000, 0.1, 1, 0.5, [2], good_gaussian(0.1), 100))
+# print(compare_sigma(NN_to_function_v2(load_model_v2()), 10000, 1, 3, 0.5, 100, good_gaussian(1), l1[:-1]))
+# print(compare_sigma(lambda x : np.sin(x), 10000, 0.1, 1, 0.5, 100, good_gaussian(0.1), [2]))
 
 
