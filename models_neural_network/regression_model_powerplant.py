@@ -32,7 +32,8 @@ when the power plant was set to work with full load.
 Features consist of hourly average ambient variables Temperature (T), Ambient Pressure (AP), Relative Humidity (RH) and Exhaust Vacuum (V)
 to predict the net hourly electrical energy output (EP)  of the plant.
 '''
-df = pd.read_csv("models_neural_network/data/sheet1.csv", delimiter=';')
+df = pd.read_csv(
+    "models_neural_network/data/data_powerplant.csv", delimiter=';')
 X = df[['AT', 'V', 'AP', 'RH']]
 y = df['PE']
 X_train, X_test, y_train, y_test = train_test_split(
