@@ -59,7 +59,7 @@ def NN_to_function_v2(model):
 def load_model_v2():
     model = Model()
     model.load_state_dict(torch.load(
-        "models_neural_network/model_v3.pth", map_location=torch.device('cpu')))
+        "models_neural_network/household_save.pth", map_location=torch.device('cpu')))
     return model
 
 
@@ -209,7 +209,7 @@ if __name__ == "__main__":
         plt.show()
 
         # Save model to file
-        torch.save(model.state_dict(), 'model_v2.pth')
+        torch.save(model.state_dict(), 'household_save.pth')
 
         return model
 

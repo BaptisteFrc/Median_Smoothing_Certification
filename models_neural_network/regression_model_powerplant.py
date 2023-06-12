@@ -8,23 +8,6 @@ from sklearn.model_selection import train_test_split
 import tqdm
 import numpy as np
 
-"""
-looking for when the nn will not give satisfying results...
-modèle 1: 4,128,64,8,1 
-modèle 2: 4,128,8,1
-modèle 3: 4,64,8,1
-modèle 4: 4,16,8,1
-modèle 5: 4,4,8,1
-modèle 6: 4,4,4,1
-modèle 7: 4,4,1
-modèle 8: 4,1
-... it always does appparently
-
-Tries to have a better loss...
-... unconclusive.
-"""
-
-
 # Import data
 '''
 The dataset contains 9568 data points collected from a Combined Cycle Power Plant over 6 years (2006-2011),
@@ -134,7 +117,7 @@ def train():
 def NN_to_function(model):
     def inner(input):
         model.load_state_dict(torch.load(
-            "models_neural_network/regression.pt"))
+            "models_neural_network/powerplant_save.pt"))
         model.eval()
         input = torch.DoubleTensor(input)
         y_pred = model(input)
@@ -144,5 +127,6 @@ def NN_to_function(model):
 
 def load_model():
     model = NeuralNetwork()
-    model.load_state_dict(torch.load("models_neural_network/regression.pt"))
+    model.load_state_dict(torch.load(
+        "models_neural_network/powerplant_save.pt"))
     return model
