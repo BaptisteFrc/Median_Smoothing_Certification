@@ -11,13 +11,13 @@ The bench test provides several graphic representations of the smoothed function
 
 The python modules mandatory to run the code are described in requirements.txt. There is no need for any other gadget.
 
-## How to use the project ?
+## How to use ?
 
 The only file that provides robustness indicators is user_interface.py. The folder "smoothing" manages the smoothing process of a function. The folder "models_neural_network" provides two neural networks that can be used to run tests in the interface section. The folder adversarial_attacks contains a hand-written fast gradiant attack that can be used to test the robustness of functions in the interface section as well.
 
 ## Support
 
-If you need any further information, you can't contact us at this email adress : aurele.gallard@student-cs.fr
+If you need any further information, you can contact us at this email adress : aurele.gallard@student-cs.fr
 
 ## Credits
 
