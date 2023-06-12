@@ -4,3 +4,5 @@ numpy
 matplotlib
 scipy.stats
 random
+pandas
+scikit-learn
