@@ -5,7 +5,7 @@
 This python code enable the user the apply a Gaussian smoothing to any function from R^d to R including such neural networks.
 The bench test provides several graphic representations of the smoothed functions and their certification bounds as it is described in "article en question". It also contains many other indicators of the performances of the Gaussian smooting mainly by the quantil method but also by the mean method. A quantifier of the robustness of a function has also been implemented.
 
-## implementing rules
+## Implementing rules
 
 The python modules mandatory to run the code are described in requirements.txt. There is no need for any other gadget.
 

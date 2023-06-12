@@ -321,3 +321,4 @@ def compare_sigma(f, n, sigma1, sigma2, p, N, G_attack, x):
 
 # print(compare_sigma(NN_to_function_v2(load_model_v2()), 1000, 1, 3, 0.5, 100, good_gaussian(1), l1[:-1]))
 # print(compare_sigma(lambda x : np.sin(x), 1000, 0.1, 1, 0.5, 100, good_gaussian(0.1), [2]))
+
