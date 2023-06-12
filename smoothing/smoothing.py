@@ -165,7 +165,7 @@ def max_bound(f : callable, n : int, sigma : float, p : float, alpha : float, ep
     return f_smoothed
 
 
-def max_bound_exp(f : callable, n : int, sigma : float, l : float, u : float, epsilon : float, alpha : float) ->callable:
+def max_bound_exp(f : callable, n : int, sigma : float, l : float, u : float, alpha : float, epsilon : float) ->callable:
     """
     Same for the mean method.
 
