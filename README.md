@@ -20,7 +20,7 @@ If you need any further information, you can contact us at this email adress : a
 ## Credits
 
 This project has been carried out in the context of CentraleSupelec AI project pole. Our team was composed of 5 first year students :
-Sarah Lamik, Mathilde Morain, Yi Zhong, Baptiste François and Aurèle Gallard ; in partnership with a CEA researcher : Aurélien Benoît-Lévy.
+Sarah Lamik, Mathilde Morhain, Yi Zhong, Baptiste François and Aurèle Gallard ; in partnership with a CEA researcher : Aurélien Benoît-Lévy.
 
 ## Licence
 
